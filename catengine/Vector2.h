@@ -1,6 +1,8 @@
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
+#include "MathF.h"
+
 namespace catengine {
   /**
    * A 2d vector for use with our 2d matrices.
@@ -31,7 +33,7 @@ namespace catengine {
     }
     Vector2 operator-(Vector2 const& v) const
     {
-      return Vector2(x + v.x, y + v.y);
+      return Vector2(x - v.x, y - v.y);
     }
     Vector2 operator*(Vector2 const& v) const 
     {
@@ -55,16 +57,34 @@ namespace catengine {
       return Vector2(x / f, y / f);
     }
 
+    Vector2& operator+=(float f)
+    {
+      x += f;
+      y += f;
+      return *this;
+    }
     Vector2& operator+=(Vector2 const& v)
     {
       x += v.x;
       y += v.y;
       return *this;
     }
+    Vector2& operator-=(float f)
+    {
+      x -= f;
+      y -= f;
+      return *this;
+    }
     Vector2& operator-=(Vector2 const& v) 
     {
       x -= v.x;
       y -= v.y;
+      return *this;
+    }
+    Vector2& operator*=(float f)
+    {
+      x *= f;
+      y *= f;
       return *this;
     }
 
@@ -147,7 +167,7 @@ namespace catengine {
      */
     float mag() const 
     {
-      return sqrtf(x * x + y * y);
+      return sqrt(x * x + y * y);
     }
 
     /**

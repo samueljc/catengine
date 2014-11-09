@@ -35,10 +35,10 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="unittest1.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Vector2-test.cpp">
+      <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Vector2.cpp">
+    <ClCompile Include="MathF-test.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
