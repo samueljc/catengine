@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "Vector2.h"
 
 #define Test Microsoft::VisualStudio::CppUnitTestFramework
@@ -110,6 +111,7 @@ namespace catenginetests {
       Test::Assert::IsTrue(a == b);
     }
 
+    // todo: better cross product test
     TEST_METHOD(cross_product_test)
     {
       catengine::Vector2 a(5.0f, 3.0f);

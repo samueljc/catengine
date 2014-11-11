@@ -73,6 +73,7 @@
     <ClInclude Include="MathF.h" />
     <ClInclude Include="Matrix2.h" />
     <ClInclude Include="Polygon.h" />
+    <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="ShapeUtilities.h" />
     <ClInclude Include="Vector2-test.h" />
@@ -84,6 +85,7 @@
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="Matrix2.cpp" />
     <ClCompile Include="Polygon.cpp" />
+    <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
