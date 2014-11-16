@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+#include "Types.h"
 #include "Vector2.h"
 #include "Matrix2.h"
 
@@ -69,6 +70,10 @@ namespace catengine {
       acceleration_ = v;
     }
 
+    inline bool remove_from_quadtree() const {
+      return true;
+    }
+
     /**
      * Check to see if this object is tagged.
      * @param Tag we're looking for.
@@ -86,6 +91,8 @@ namespace catengine {
 
     void add_tag(std::string const& tag);
     void remove_tag(std::string const& tag);
+
+    static Rectangle get_bounding_rect(GameObject const*);
 
   private:
     Vector2 position_;

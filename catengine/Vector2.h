@@ -1,6 +1,7 @@
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
+#include "Types.h"
 #include "MathF.h"
 
 namespace catengine {
@@ -8,15 +9,15 @@ namespace catengine {
    * A 2d vector for use with our 2d matrices.
    */
   struct Vector2 {
-    float x;
-    float y;
+    _decimal x;
+    _decimal y;
 
     Vector2() : 
       Vector2(0.0f, 0.0f) 
     {
     }
 
-    Vector2(float a, float b) :
+    Vector2(_decimal a, _decimal b) :
       x(a),
       y(b) 
     {
@@ -40,24 +41,24 @@ namespace catengine {
       return Vector2(x * v.x, y * v.y);
     }
 
-    Vector2 operator+(float f) const 
+    Vector2 operator+(_decimal f) const 
     {
       return Vector2(x + f, y + f);
     }
-    Vector2 operator-(float f) const 
+    Vector2 operator-(_decimal f) const 
     {
       return Vector2(x - f, y - f);
     }
-    Vector2 operator*(float f) const 
+    Vector2 operator*(_decimal f) const 
     {
       return Vector2(x * f, y * f);
     }
-    Vector2 operator/(float f) const
+    Vector2 operator/(_decimal f) const
     {
       return Vector2(x / f, y / f);
     }
 
-    Vector2& operator+=(float f)
+    Vector2& operator+=(_decimal f)
     {
       x += f;
       y += f;
@@ -69,7 +70,7 @@ namespace catengine {
       y += v.y;
       return *this;
     }
-    Vector2& operator-=(float f)
+    Vector2& operator-=(_decimal f)
     {
       x -= f;
       y -= f;
@@ -81,7 +82,7 @@ namespace catengine {
       y -= v.y;
       return *this;
     }
-    Vector2& operator*=(float f)
+    Vector2& operator*=(_decimal f)
     {
       x *= f;
       y *= f;
@@ -116,7 +117,7 @@ namespace catengine {
      * @param The right vector.
      * @return Scalar value of the 2d cross product.
      */
-    inline float cross(Vector2 const& v) const 
+    inline _decimal cross(Vector2 const& v) const 
     {
       return x * v.y - y * v.x;
     }
@@ -126,7 +127,7 @@ namespace catengine {
      * @param Vector on the right hand side of the dot product equation.
      * @return Scalar value of the dot product.
      */
-    inline float dot(Vector2 const& v) const 
+    inline _decimal dot(Vector2 const& v) const 
     {
       return x * v.x + y * v.y;
     }
@@ -152,9 +153,9 @@ namespace catengine {
      */
     Vector2 normal() const
     {
-      float m = mag();
+      _decimal m = mag();
       if (m > 0.0f) {
-        float d = 1.0f / m;
+        _decimal d = 1.0f / m;
         return Vector2(x * d, y * d);
       }
       else {
@@ -165,7 +166,7 @@ namespace catengine {
     /**
      * The magnitude of the vector.
      */
-    float mag() const 
+    _decimal mag() const 
     {
       return sqrt(x * x + y * y);
     }
@@ -173,14 +174,14 @@ namespace catengine {
     /**
     * The squared magnitude of the vector.
     */
-    inline float sqmag() const 
+    inline _decimal sqmag() const 
     {
       return x * x + y * y;
     }
 
-    friend Vector2 lerp(Vector2 const& a, Vector2 const& b, float s);
-    friend Vector2 operator+(float a, Vector2 const& b);
-    friend Vector2 operator*(float a, Vector2 const& b);
+    friend Vector2 lerp(Vector2 const& a, Vector2 const& b, _decimal s);
+    friend Vector2 operator+(_decimal a, Vector2 const& b);
+    friend Vector2 operator*(_decimal a, Vector2 const& b);
   };
 }
 

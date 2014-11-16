@@ -1,6 +1,8 @@
 #ifndef LINE_SEGMENT_H
 #define LINE_SEGMENT_H
 
+#include "Types.h"
+
 #include "Vector2.h"
 
 namespace catengine {
@@ -19,7 +21,7 @@ namespace catengine {
       end(end)
     {}
 
-    LineSegment(float x1, float y1, float x2, float y2) :
+    LineSegment(_decimal x1, _decimal y1, _decimal x2, _decimal y2) :
       start(x1, y1),
       end(x2, y2)
     {}

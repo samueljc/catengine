@@ -3,9 +3,11 @@
 
 #include <cmath>
 
+#include "Types.h"
+
 namespace catengine {
-  static float const PI = 3.14159265359f;
-  static float const PI2 = 6.28318530718f;
+  static _decimal const PI = 3.14159265359f;
+  static _decimal const PI2 = 6.28318530718f;
 
   /**
    * Calculate the sqrt of x. Currently wraps the existing std::math sqrt
@@ -15,7 +17,7 @@ namespace catengine {
    * @param x The value we want to get the square root of.
    * @return The square root.
    */
-  inline float sqrt(float x)
+  inline _decimal sqrt(_decimal x)
   {
     return std::sqrt(x);
   }
@@ -25,7 +27,7 @@ namespace catengine {
    * @param x x
    * @return sin of x
    */
-  inline float sin(float x)
+  inline _decimal sin(_decimal x)
   {
     return std::sin(x);
   }
@@ -35,7 +37,7 @@ namespace catengine {
   * @param x x
   * @return cos of x
   */
-  inline float cos(float x)
+  inline _decimal cos(_decimal x)
   {
     return std::cos(x);
   }
@@ -45,16 +47,16 @@ namespace catengine {
   * @param x x
   * @return tan of x
   */
-  inline float tan(float x)
+  inline _decimal tan(_decimal x)
   {
     return std::tan(x);
   }
 
-  inline float deg2rad(float deg)
+  inline _decimal deg2rad(_decimal deg)
   {
     return deg * PI / 180.0f;
   }
-  inline float rad2deg(float rad)
+  inline _decimal rad2deg(_decimal rad)
   {
     return rad * 180.0f / PI;
   }

@@ -2,8 +2,6 @@
 #define COMPONENT_H
 
 namespace catengine {
-  interface Component {
-  };
 }
 
 #endif

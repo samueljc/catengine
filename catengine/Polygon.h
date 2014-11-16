@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdarg>
 
+#include "Types.h"
 #include "Vector2.h"
 
 namespace catengine {
@@ -19,16 +20,16 @@ namespace catengine {
     {
     }
 
-    Vector2& operator[](std::size_t i)
+    Vector2& operator[](std::_unsigned i)
     {
       return vertices_[i];
     }
-    Vector2 const& operator[](std::size_t i) const
+    Vector2 const& operator[](std::_unsigned i) const
     {
       return vertices_[i];
     }
 
-    size_t size() const
+    _unsigned size() const
     {
       return vertices_.size();
     }
@@ -53,15 +54,15 @@ namespace catengine {
     {
       vertices_.push_back(vertex);
     }
-    void remove(int i)
+    void remove(_integer i)
     {
       vertices_.erase(vertices_.begin() + i);
     }
-    void insert(int i, Vector2 const& vertex)
+    void insert(_integer i, Vector2 const& vertex)
     {
       vertices_.insert(vertices_.begin() + i, vertex);
     }
-    void insert(int index, std::vector<Vector2> const& vertices)
+    void insert(_integer index, std::vector<Vector2> const& vertices)
     {
       vertices_.insert(vertices_.begin() + index, vertices.cbegin(), vertices.cend());
     }

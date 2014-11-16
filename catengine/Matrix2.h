@@ -1,20 +1,22 @@
 #ifndef MATRIX2_H
 #define MATRIX2_H
 
+#include "Types.h"
+
 namespace catengine {
   class Matrix2 {
   public:
 
   private:
-    float aa;
-    float ab;
-    float ac;
-    float ba;
-    float bb;
-    float bc;
-    float ca;
-    float cb;
-    float cc;
+    _decimal aa;
+    _decimal ab;
+    _decimal ac;
+    _decimal ba;
+    _decimal bb;
+    _decimal bc;
+    _decimal ca;
+    _decimal cb;
+    _decimal cc;
   };
 }
 

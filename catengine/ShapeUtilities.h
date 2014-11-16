@@ -1,6 +1,7 @@
 #ifndef SHAPE_UTILITIES_H
 #define SHAPE_UTILITIES_H
 
+#include "Types.h"
 #include "Rectangle.h"
 
 namespace catengine {
