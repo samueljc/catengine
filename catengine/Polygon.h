@@ -20,11 +20,11 @@ namespace catengine {
     {
     }
 
-    Vector2& operator[](std::_unsigned i)
+    Vector2& operator[](_unsigned i)
     {
       return vertices_[i];
     }
-    Vector2 const& operator[](std::_unsigned i) const
+    Vector2 const& operator[](_unsigned i) const
     {
       return vertices_[i];
     }
@@ -54,10 +54,12 @@ namespace catengine {
     {
       vertices_.push_back(vertex);
     }
+
     void remove(_integer i)
     {
-      vertices_.erase(vertices_.begin() + i);
+      if (i < vertices_.size()) vertices_.erase(vertices_.begin() + i);
     }
+
     void insert(_integer i, Vector2 const& vertex)
     {
       vertices_.insert(vertices_.begin() + i, vertex);

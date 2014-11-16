@@ -2,9 +2,9 @@
 #define TYPES_H
 
 namespace catengine {
-  typedef _decimal _decimal;
-  typedef _integer _integer;
-  typedef _unsigned _unsigned;
+  typedef float _decimal;
+  typedef int _integer;
+  typedef size_t _unsigned;
   typedef unsigned short _flag;
 }
 

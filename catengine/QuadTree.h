@@ -10,7 +10,7 @@
 
 namespace catengine {
   class QuadTree {
-    typedef std::function<Rectangle (GameObject const*)> rect_func;
+    typedef std::function<Rectangle (GameObject const&)> rect_func;
 
   public:
     QuadTree(Rectangle const& bounds, 
@@ -27,40 +27,32 @@ namespace catengine {
       root_.tree = this;
     }
 
-    inline _unsigned split_size() const {
-      return split_size_;
-    }
-    inline void split_size(_unsigned split_size) {
-      split_size_ = split_size;
-    }
+    inline _unsigned split_size() const { return split_size_; }
+    inline void split_size(_unsigned split_size) { split_size_ = split_size; }
 
-    inline _unsigned prune_size() const {
-      return prune_size_;
-    }
-    inline void prune_size(_unsigned prune_size) {
-      prune_size_ = prune_size;
-    }
+    inline _unsigned prune_size() const { return prune_size_; }
+    inline void prune_size(_unsigned prune_size) { prune_size_ = prune_size; }
 
-    inline _unsigned max_depth() const {
-      return max_depth_;
-    }
-    inline void max_depth(_unsigned max_depth) {
-      max_depth_ = max_depth;
-    }
+    inline _unsigned max_depth() const { return max_depth_; }
+    inline void max_depth(_unsigned max_depth) { max_depth_ = max_depth; }
 
-    inline Rectangle func(GameObject const* o) const {
-      return func_(o);
-    }
-    inline void func(rect_func f) {
-      func_ = f;
-    }
+    inline Rectangle func(GameObject const& o) const { return func_(o); }
+    inline void func(rect_func f) { func_ = f; }
 
     /**
      * Retrieve the number of objects contained in this tree.
      * @return unsigned of the object count
      */
-    inline _unsigned count() const {
-      return root_.count;
+    inline _unsigned count() const { return root_.count; }
+
+    /**
+     * Remove everything contained in this tree.
+     */
+    inline void clear()
+    { 
+      root_.children.clear();
+      root_.data.clear();
+      root_.count = 0;
     }
 
     /**
@@ -69,16 +61,14 @@ namespace catengine {
     * appropriate node.
     * @param o A pointer to the object we want to insert.
     */
-    inline void insert(GameObject* o) {
-      root_.insert(o);
-    }
+    inline void insert(GameObjectPtr o) { root_.insert(o); }
 
     /**
     * Collect all of the potential collisions with o and store them in vo.
     * @param r Range we want to collect in.
     */
-    inline std::vector<GameObject*> collect(Rectangle const& r) const {
-      std::vector<GameObject*> rv;
+    inline std::vector<GameObjectPtr> collect(Rectangle const& r) const {
+      std::vector<GameObjectPtr> rv;
       if (r.width == 0.0f || r.height == 0.0f) return rv;
       root_.collect(r, rv);
       return rv;
@@ -87,9 +77,7 @@ namespace catengine {
     /**
     * Rebalance the tree moving everything into the new appropriate node.
     */
-    inline void rebalance() {
-      root_.rebalance();
-    }
+    inline void rebalance() { root_.rebalance(); }
 
   private:
     struct Node {
@@ -104,9 +92,9 @@ namespace catengine {
       static const _unsigned BOTTOM_RIGHT = 3;
       static const _unsigned CHILD_COUNT = 4;
 
-      std::vector<GameObject*> data;
-      Node* children;
+      std::vector<GameObjectPtr> data;
       Node* parent;
+      std::vector<Node> children;
       QuadTree const* tree;
       _unsigned depth;
       _unsigned count;
@@ -116,25 +104,18 @@ namespace catengine {
 
       Node(Node* parent, Rectangle const& bounds) :
         parent(parent),
-        tree(parent->tree),
-        depth(parent->depth + 1)
+        tree((parent != nullptr) ? parent->tree : nullptr),
+        depth((parent != nullptr) ? parent->depth + 1 : 0),
+        count(0),
+        bounds(bounds),
+        mid_x(bounds.center_x()),
+        mid_y(bounds.center_y())
       {
-        this->bounds = bounds;
-        mid_x = bounds.center_x;
-        mid_y = bounds.center_y;
       }
 
-      ~Node()
+      inline bool is_split() const { return children.size() == 4; }
+      inline bool can_split() const 
       {
-        if (children == nullptr) return;
-        delete[] children;
-      }
-
-      inline bool is_split() const {
-        return children != nullptr;
-      }
-
-      inline bool can_split() const {
         return data.size() >= tree->split_size() && depth < tree->max_depth();
       }
 
@@ -144,17 +125,16 @@ namespace catengine {
        * @param The area we want to check over.
        */
       inline _flag get_range(Rectangle const& r) const {
-        _flag range = (r.left <= mid_x) & LEFT;
-        range &= (mid_x <= r.right) & RIGHT;
-        range &= (r.top <= mid_y) & TOP;
-        range &= (mid_y <= r.bottom) & BOTTOM;
+        _flag range = (r.left() <= mid_x) << 1;
+        range &= (mid_x <= r.right()) << 2;
+        range &= (r.top() <= mid_y) << 3;
+        range &= (mid_y <= r.bottom()) << 4;
         return range;
       }
 
-      void clear();
-      void insert(GameObject* o);
+      void insert(GameObjectPtr);
       void split();
-      void collect(Rectangle const& r, std::vector<GameObject*>& vo) const;
+      void collect(Rectangle const&, std::vector<GameObjectPtr>&) const;
       void rebalance();
     };
 

@@ -5,7 +5,7 @@
 #include "Polygon.h"
 #include "Vector2.h"
 
-#define Test Microsoft::VisualStudio::CppUnitTestFramework
+using Microsoft::VisualStudio::CppUnitTestFramework::Assert;
 
 namespace catenginetests {
   TEST_CLASS(Polygon_test) {
@@ -21,8 +21,8 @@ namespace catenginetests {
       catengine::Polygon b(vertices);
       a = b;
       b.clear();
-      Test::Assert::AreEqual((size_t)4, a.size());
-      Test::Assert::AreEqual((size_t)0, b.size());
+      Assert::AreEqual((size_t)4, a.size());
+      Assert::AreEqual((size_t)0, b.size());
     }
 
     TEST_METHOD(add_test)
@@ -37,10 +37,10 @@ namespace catenginetests {
       for (catengine::Vector2 v : a) {
         ++i;
       }
-      Test::Assert::AreEqual((size_t)4, a.size());
+      Assert::AreEqual((size_t)4, a.size());
 
       a.insert(3, a[2]);
-      Test::Assert::AreEqual((size_t)5, a.size());
+      Assert::AreEqual((size_t)5, a.size());
     }
 
     TEST_METHOD(remove_test)
@@ -51,9 +51,9 @@ namespace catenginetests {
       a.add(catengine::Vector2(1.0f, 1.0f));
       a.add(catengine::Vector2(0.0f, 1.0f));
       a.remove(2);
-      Test::Assert::AreEqual((size_t)3, a.size());
-      a.remove(3);
-      Test::Assert::AreEqual((size_t)2, a.size());
+      Assert::AreEqual((size_t)3, a.size());
+      a.remove(0);
+      Assert::AreEqual((size_t)2, a.size());
     }
   };
 }

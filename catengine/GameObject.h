@@ -3,8 +3,10 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "Types.h"
+#include "Rectangle.h"
 #include "Vector2.h"
 #include "Matrix2.h"
 
@@ -92,7 +94,10 @@ namespace catengine {
     void add_tag(std::string const& tag);
     void remove_tag(std::string const& tag);
 
-    static Rectangle get_bounding_rect(GameObject const*);
+    static Rectangle get_bounding_rect(GameObject const& c)
+    {
+      return Rectangle(0, 0, 5, 5);
+    }
 
   private:
     Vector2 position_;
@@ -106,6 +111,8 @@ namespace catengine {
 
     void update_transformation();
   };
+
+  typedef std::shared_ptr<GameObject> GameObjectPtr;
 }
 
 #endif

@@ -1,24 +1,14 @@
 #include "QuadTree.h"
 
-void catengine::QuadTree::Node::clear()
-{
-  if (is_split()) {
-    for (_unsigned i = 0; i < CHILD_COUNT; ++i) {
-      children[i].clear();
-    }
-  }
-  delete[] children;
-  data.clear();
-}
-
-void catengine::QuadTree::Node::insert(catengine::GameObject* o)
+void catengine::QuadTree::Node::insert(GameObjectPtr o)
 {
   ++count;
-  Rectangle r = tree->func(o);
+  Rectangle r = tree->func(*o);
   _flag range = get_range(r);
 
-  if (range & (LEFT | RIGHT) != (LEFT | RIGHT) || 
-      range & (TOP | BOTTOM) != (TOP | BOTTOM)) {
+  if (!is_split() ||
+      (range & (LEFT | RIGHT)) != (LEFT | RIGHT) || 
+      (range & (TOP | BOTTOM)) != (TOP | BOTTOM)) {
     data.push_back(o);
     if (!is_split() && can_split()) split();
   }
@@ -32,27 +22,30 @@ void catengine::QuadTree::Node::split()
 {
   _decimal cw = bounds.width / 2.0f;
   _decimal ch = bounds.height / 2.0f;
-  children = new Node[CHILD_COUNT] {
-    Node(this, Rectangle(bounds.left, bounds.top, cw, ch)), // TOP_LEFT
-    Node(this, Rectangle(mid_x, bounds.top, cw, ch)), // TOP_RIGHT
-    Node(this, Rectangle(bounds.left, mid_y, cw, ch)), // BOTTOM_LEFT
-    Node(this, Rectangle(mid_x, mid_y, cw, ch)) // BOTTOM_RIGHT
-  };
 
-  for (_unsigned i = data.size() - 1; i >= 0; --i) {
-    catengine::GameObject* o = data[i];
+  children.reserve(4);
+  auto child = children.begin();
+  children.emplace(child + TOP_LEFT,
+    Node(this, Rectangle(bounds.left(), bounds.top(), cw, ch)));
+  children.emplace_back(); // TOP_LEFT
+  children.emplace_back(Node(this, Rectangle(mid_x, bounds.top(), cw, ch))); // TOP_RIGHT
+  children.emplace_back(Node(this, Rectangle(bounds.left(), mid_y, cw, ch))); // BOTTOM_LEFT
+  children.emplace_back(Node(this, Rectangle(mid_x, mid_y, cw, ch))); // BOTTOM_RIGHT
+
+  for (_integer i = data.size() - 1; i >= 0; --i) {
+    GameObjectPtr o = data[i];
     data.erase(data.begin() + i);
     --count;
     insert(o);
   }
 }
 
-void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vector<catengine::GameObject*>& vo) const
+void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vector<GameObjectPtr>& vo) const
 {
   for (auto d : data) {
     vo.push_back(d);
   }
-  if (children == nullptr) return;
+  if (!is_split()) return;
 
   _flag range = get_range(r);
 
@@ -64,7 +57,7 @@ void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vect
 
 void catengine::QuadTree::Node::rebalance()
 {
-  for (_unsigned i = data.size(); i >= 0; --i) {
+  for (_integer i = data.size(); i >= 0; --i) {
     auto o = data[i];
     data.erase(data.begin() + i);
     --count;

@@ -76,7 +76,8 @@
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="ShapeUtilities.h" />
-    <ClInclude Include="Vector2-test.h" />
+    <ClInclude Include="SmartPointer.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <ItemGroup>

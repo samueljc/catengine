@@ -25,14 +25,8 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{7b3ada47-a222-495b-99fa-bde3768a3297}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Test Files">
-      <UniqueIdentifier>{1b499ca9-e4ab-4bbb-b99e-ca73082f6837}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Utilities">
       <UniqueIdentifier>{e96eb4c6-41cb-42c5-8849-58639bbf6a64}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Test Files\Math">
-      <UniqueIdentifier>{23a97265-bce3-4fef-8627-073600a1ec97}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Utilities">
       <UniqueIdentifier>{8b885b7f-360e-4c98-bae4-7e35b68cd948}</UniqueIdentifier>
@@ -50,9 +44,6 @@
     </ClInclude>
     <ClInclude Include="Logging.h">
       <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector2-test.h">
-      <Filter>Test Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="Matrix2.h">
       <Filter>Header Files\Math</Filter>
@@ -76,6 +67,12 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="QuadTree.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="SmartPointer.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
