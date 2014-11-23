@@ -57,7 +57,8 @@ namespace catengine {
 
     void remove(_integer i)
     {
-      if (i < vertices_.size()) vertices_.erase(vertices_.begin() + i);
+      if (static_cast<size_t>(i) < vertices_.size()) 
+        vertices_.erase(vertices_.begin() + i);
     }
 
     void insert(_integer i, Vector2 const& vertex)

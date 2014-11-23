@@ -24,13 +24,14 @@ void catengine::QuadTree::Node::split()
   _decimal ch = bounds.height / 2.0f;
 
   children.reserve(4);
-  auto child = children.begin();
-  children.emplace(child + TOP_LEFT,
+  children.emplace(children.begin() + TOP_LEFT,
     Node(this, Rectangle(bounds.left(), bounds.top(), cw, ch)));
-  children.emplace_back(); // TOP_LEFT
-  children.emplace_back(Node(this, Rectangle(mid_x, bounds.top(), cw, ch))); // TOP_RIGHT
-  children.emplace_back(Node(this, Rectangle(bounds.left(), mid_y, cw, ch))); // BOTTOM_LEFT
-  children.emplace_back(Node(this, Rectangle(mid_x, mid_y, cw, ch))); // BOTTOM_RIGHT
+  children.emplace(children.begin() + TOP_RIGHT,
+    Node(this, Rectangle(mid_x, bounds.top(), cw, ch)));
+  children.emplace(children.begin() + BOTTOM_LEFT,
+    Node(this, Rectangle(bounds.left(), mid_y, cw, ch)));
+  children.emplace(children.begin() + BOTTOM_RIGHT,
+    Node(this, Rectangle(mid_x, mid_y, cw, ch)));
 
   for (_integer i = data.size() - 1; i >= 0; --i) {
     GameObjectPtr o = data[i];
