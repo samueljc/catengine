@@ -9,7 +9,7 @@
 
 #include "Types.h"
 #include "Rectangle.h"
-#include "Line.h"
+#include "LineSegment.h"
 #include "Circle.h"
 #include "Color.h"
 
@@ -35,20 +35,28 @@ namespace catengine {
 
     virtual void set_color(catengine::Color const& color) = 0;
 
-    virtual void draw_rect(catengine::Rectangle const& rectangle) const = 0;
     virtual void draw_line(catengine::LineSegment const& line) const = 0;
+
+    virtual void draw_rect(catengine::Rectangle const& rectangle) const = 0;
+    virtual void fill_rect(catengine::Rectangle const& rectangle) const = 0;
+
     virtual void draw_circle(catengine::Circle const& circle) const = 0;
+    virtual void fill_circle(catengine::Circle const& circle) const = 0;
 
     virtual void resize(_unsigned width, _unsigned height) = 0;
 
     //LRESULT CALLBACK WindowProc(HWND h_wnd, UINT message, WPARAM w_param, LPARAM l_param);
 
-    _decimal get_dpi_x() const { return dpi_x_; }
-    _decimal get_dpi_y() const { return dpi_y_; }
+    inline _decimal get_dpi_x() const { return dpi_x_; }
+    inline _decimal get_dpi_y() const { return dpi_y_; }
+
+    inline void set_thickness(_decimal thickness) { thickness_ = thickness; }
+    inline _decimal get_thickness() const { return thickness_; }
 
   protected:
     _decimal dpi_x_;
     _decimal dpi_y_;
+    _decimal thickness_;
   };
 }
 

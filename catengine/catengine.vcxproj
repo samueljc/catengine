@@ -72,17 +72,20 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="LineSegment.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="MathF.h" />
     <ClInclude Include="Matrix2.h" />
+    <ClInclude Include="Point2d.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ShapeUtilities.h" />
     <ClInclude Include="SmartPointer.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="Vector2.h" />
+    <ClInclude Include="Vector2d.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Circle.cpp" />
@@ -90,11 +93,9 @@
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="D2DRenderer.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Line.cpp" />
     <ClCompile Include="Matrix2.cpp" />
-    <ClCompile Include="Polygon.cpp" />
+    <ClCompile Include="Point2d.cpp" />
     <ClCompile Include="QuadTree.cpp" />
-    <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

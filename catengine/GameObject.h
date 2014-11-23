@@ -7,7 +7,7 @@
 
 #include "Types.h"
 #include "Rectangle.h"
-#include "Vector2.h"
+#include "Vector2d.h"
 #include "Matrix2.h"
 
 namespace catengine {
@@ -24,50 +24,50 @@ namespace catengine {
       tags_.reserve(10);
     }
 
-    inline Vector2 position() const
+    inline Vector2d position() const
     {
       return position_;
     }
-    inline void position(Vector2 const& v)
+    inline void position(Vector2d const& v)
     {
       position_ = v;
       update_transformation();
     }
 
-    inline Vector2 rotation() const
+    inline Vector2d rotation() const
     {
       return rotation_;
     }
-    inline void rotation(Vector2 const& v)
+    inline void rotation(Vector2d const& v)
     {
       rotation_ = v;
       update_transformation();
     }
 
-    inline Vector2 scale() const
+    inline Vector2d scale() const
     {
       return scale_;
     }
-    inline void scale(Vector2 const& v)
+    inline void scale(Vector2d const& v)
     {
       scale_ = v;
       update_transformation();
     }
 
-    inline Vector2 velocity() const
+    inline Vector2d velocity() const
     {
       return velocity_;
     }
-    inline void velocity(Vector2 const& v)
+    inline void velocity(Vector2d const& v)
     {
       velocity_ = v;
     }
 
-    inline Vector2 acceleration() const
+    inline Vector2d acceleration() const
     {
       return acceleration_;
     }
-    inline void acceleration(Vector2 const& v)
+    inline void acceleration(Vector2d const& v)
     {
       acceleration_ = v;
     }
@@ -100,12 +100,12 @@ namespace catengine {
     }
 
   private:
-    Vector2 position_;
-    Vector2 rotation_;
-    Vector2 scale_;
+    Vector2d position_;
+    Vector2d rotation_;
+    Vector2d scale_;
     Matrix2 transformation_;
-    Vector2 velocity_;
-    Vector2 acceleration_;
+    Vector2d velocity_;
+    Vector2d acceleration_;
 
     std::vector<std::string> tags_;
 

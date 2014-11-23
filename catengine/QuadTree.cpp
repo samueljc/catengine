@@ -1,6 +1,8 @@
 #include "QuadTree.h"
 
-void catengine::QuadTree::Node::insert(GameObjectPtr o)
+using catengine::QuadTree;
+
+void QuadTree::Node::insert(GameObjectPtr o)
 {
   ++count;
   Rectangle r = tree->func(*o);
@@ -18,7 +20,7 @@ void catengine::QuadTree::Node::insert(GameObjectPtr o)
   else if (range != (BOTTOM | RIGHT)) children[BOTTOM_RIGHT].insert(o);
 }
 
-void catengine::QuadTree::Node::split()
+void QuadTree::Node::split()
 {
   _decimal cw = bounds.width / 2.0f;
   _decimal ch = bounds.height / 2.0f;
@@ -41,7 +43,7 @@ void catengine::QuadTree::Node::split()
   }
 }
 
-void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vector<GameObjectPtr>& vo) const
+void QuadTree::Node::collect(catengine::Rectangle const& r, std::vector<GameObjectPtr>& vo) const
 {
   for (auto d : data) {
     vo.push_back(d);
@@ -56,8 +58,10 @@ void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vect
   if (range != (BOTTOM | RIGHT)) children[BOTTOM_RIGHT].collect(r, vo);
 }
 
-void catengine::QuadTree::Node::rebalance()
+void QuadTree::Node::rebalance()
 {
+  LOG(WARNING) << "NEEDS IMPLEMENTING";
+  /*
   for (_integer i = data.size(); i >= 0; --i) {
     auto o = data[i];
     data.erase(data.begin() + i);
@@ -67,4 +71,12 @@ void catengine::QuadTree::Node::rebalance()
     
     insert(o);
   }
+  */
+}
+
+void QuadTree::Node::draw(Renderer& renderer) const
+{
+  renderer.draw_rect(bounds);
+  for (auto child : children)
+    child.draw(renderer);
 }

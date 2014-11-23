@@ -5,7 +5,7 @@
 #include <cstdarg>
 
 #include "Types.h"
-#include "Vector2.h"
+#include "Point2d.h"
 
 namespace catengine {
   class Polygon {
@@ -15,63 +15,63 @@ namespace catengine {
     {
     }
 
-    Polygon(std::vector<Vector2> const& vertices) :
+    Polygon(std::vector<Point2d> const& vertices) :
       vertices_(vertices)
     {
     }
 
-    Vector2& operator[](_unsigned i)
+    inline Point2d& operator[](_unsigned i)
     {
       return vertices_[i];
     }
-    Vector2 const& operator[](_unsigned i) const
+    inline Point2d const& operator[](_unsigned i) const
     {
       return vertices_[i];
     }
 
-    _unsigned size() const
+    inline _unsigned size() const
     {
       return vertices_.size();
     }
 
-    void clear()
+    inline void clear()
     {
       vertices_.clear();
     }
 
-    std::vector<Vector2>::const_iterator begin() const {
+    inline std::vector<Point2d>::const_iterator begin() const {
       return vertices_.cbegin();
     }
-    std::vector<Vector2>::const_iterator end() const {
+    inline std::vector<Point2d>::const_iterator end() const {
       return vertices_.cend();
     }
 
-    void add(std::vector<Vector2> const& vertices)
+    inline void add(std::vector<Point2d> const& vertices)
     {
       vertices_.insert(vertices_.end(), vertices.cbegin(), vertices.cend());
     }
-    void add(Vector2 const& vertex)
+    inline void add(Point2d const& vertex)
     {
       vertices_.push_back(vertex);
     }
 
-    void remove(_integer i)
+    inline void remove(_integer i)
     {
       if (static_cast<size_t>(i) < vertices_.size()) 
         vertices_.erase(vertices_.begin() + i);
     }
 
-    void insert(_integer i, Vector2 const& vertex)
+    inline void insert(_integer i, Point2d const& vertex)
     {
       vertices_.insert(vertices_.begin() + i, vertex);
     }
-    void insert(_integer index, std::vector<Vector2> const& vertices)
+    inline void insert(_integer index, std::vector<Point2d> const& vertices)
     {
       vertices_.insert(vertices_.begin() + index, vertices.cbegin(), vertices.cend());
     }
 
   private:
-    std::vector<Vector2> vertices_;
+    std::vector<Point2d> vertices_;
   };
 }
 

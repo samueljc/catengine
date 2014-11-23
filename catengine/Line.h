@@ -2,28 +2,21 @@
 #define LINE_SEGMENT_H
 
 #include "Types.h"
-
-#include "Vector2.h"
+#include "Vector2d.h"
 
 namespace catengine {
-  struct LineSegment {
-    Vector2 start;
-    Vector2 end;
+  struct Line {
+    _decimal intercept;
+    Vector2d direction;
 
-    LineSegment() :
-      start(),
-      end()
-    {
-    }
-
-    LineSegment(Vector2 start, Vector2 end) :
-      start(start),
-      end(end)
+    Line() :
+      intercept(0.f),
+      direction()
     {}
 
-    LineSegment(_decimal x1, _decimal y1, _decimal x2, _decimal y2) :
-      start(x1, y1),
-      end(x2, y2)
+    Line(_decimal intercept, Vector2d const& direction) :
+      intercept(intercept),
+      direction(direction)
     {}
   };
 }

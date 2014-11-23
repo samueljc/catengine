@@ -5,8 +5,10 @@
 #include <functional>
 
 #include "Types.h"
+#include "Logging.h"
 #include "GameObject.h"
 #include "Rectangle.h"
+#include "Renderer.h"
 
 namespace catengine {
   class QuadTree {
@@ -79,6 +81,10 @@ namespace catengine {
     */
     inline void rebalance() { root_.rebalance(); }
 
+    inline void draw(Renderer& renderer) const {
+      root_.draw(renderer);
+    }
+
   private:
     struct Node {
       static const _flag LEFT = 1 << 1;
@@ -136,6 +142,7 @@ namespace catengine {
       void split();
       void collect(Rectangle const&, std::vector<GameObjectPtr>&) const;
       void rebalance();
+      void draw(Renderer& renderer) const;
     };
 
     Node root_;

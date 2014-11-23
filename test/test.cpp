@@ -55,7 +55,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   {
     renderer.begin_draw(msg.hwnd);
 
-    renderer.draw_rect(catengine::Rectangle(0, 0, 50, 50));
+    renderer.set_thickness(1.f);
+    renderer.draw_rect(catengine::Rectangle(50, 50, 50, 50));
 
     renderer.end_draw();
 

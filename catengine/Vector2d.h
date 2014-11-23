@@ -1,110 +1,72 @@
-#ifndef VECTOR2_H
-#define VECTOR2_H
+#ifndef VECTOR_2D_H
+#define VECTOR_2D_H
 
 #include "Types.h"
 #include "MathF.h"
 
 namespace catengine {
-  /**
-   * A 2d vector for use with our 2d matrices.
-   */
-  struct Vector2 {
+  struct Vector2d {
     _decimal x;
     _decimal y;
 
-    Vector2() : 
-      Vector2(0.0f, 0.0f) 
+    Vector2d() : 
+      Vector2d(0.0f, 0.0f) 
     {
     }
 
-    Vector2(_decimal a, _decimal b) :
+    Vector2d(_decimal a, _decimal b) :
       x(a),
       y(b) 
     {
     }
 
-    Vector2(Vector2 const& v) :
-      Vector2(v.x, v.y) 
-    {
-    }
-
-    Vector2 operator+(Vector2 const& v) const 
-    {
-      return Vector2(x + v.x, y + v.y);
-    }
-    Vector2 operator-(Vector2 const& v) const
-    {
-      return Vector2(x - v.x, y - v.y);
-    }
-    Vector2 operator*(Vector2 const& v) const 
-    {
-      return Vector2(x * v.x, y * v.y);
-    }
-
-    Vector2 operator+(_decimal f) const 
-    {
-      return Vector2(x + f, y + f);
-    }
-    Vector2 operator-(_decimal f) const 
-    {
-      return Vector2(x - f, y - f);
-    }
-    Vector2 operator*(_decimal f) const 
-    {
-      return Vector2(x * f, y * f);
-    }
-    Vector2 operator/(_decimal f) const
-    {
-      return Vector2(x / f, y / f);
-    }
-
-    Vector2& operator+=(_decimal f)
-    {
-      x += f;
-      y += f;
-      return *this;
-    }
-    Vector2& operator+=(Vector2 const& v)
+    Vector2d& operator+=(Vector2d const& v)
     {
       x += v.x;
       y += v.y;
       return *this;
     }
-    Vector2& operator-=(_decimal f)
+    Vector2d& operator+=(_decimal f)
     {
-      x -= f;
-      y -= f;
+      x += f;
+      y += f;
       return *this;
     }
-    Vector2& operator-=(Vector2 const& v) 
+    Vector2d& operator-=(Vector2d const& v)
     {
       x -= v.x;
       y -= v.y;
       return *this;
     }
-    Vector2& operator*=(_decimal f)
+    Vector2d& operator-=(_decimal f)
+    {
+      x -= f;
+      y -= f;
+      return *this;
+    }
+    Vector2d& operator*=(_decimal f)
     {
       x *= f;
       y *= f;
       return *this;
     }
 
-    Vector2 operator-() const 
+    Vector2d operator-() const 
     {
-      return Vector2(-x, -y);
+      return Vector2d(-x, -y);
     }
 
     // TODO: maybe make this accept values that aren't exactly equal
-    inline bool operator==(Vector2 const& v) const
+    inline bool operator==(Vector2d const& v) const
     {
       return x == v.x && y == v.y;
     }
-    inline bool operator!=(Vector2 const& v) const 
+    inline bool operator!=(Vector2d const& v) const 
     {
       return x != v.x || y != v.y;
     }
 
-    Vector2& operator=(Vector2 const& v) 
+    Vector2d& operator=(Vector2d const& v) 
     {
       x = v.x;
       y = v.y;
@@ -117,7 +79,7 @@ namespace catengine {
      * @param The right vector.
      * @return Scalar value of the 2d cross product.
      */
-    inline _decimal cross(Vector2 const& v) const 
+    inline _decimal cross(Vector2d const& v) const 
     {
       return x * v.y - y * v.x;
     }
@@ -127,7 +89,7 @@ namespace catengine {
      * @param Vector on the right hand side of the dot product equation.
      * @return Scalar value of the dot product.
      */
-    inline _decimal dot(Vector2 const& v) const 
+    inline _decimal dot(Vector2d const& v) const 
     {
       return x * v.x + y * v.y;
     }
@@ -137,9 +99,9 @@ namespace catengine {
      * vector.
      * @return This vector itself.
      */
-    Vector2& normalize() 
+    Vector2d& normalize() 
     {
-      Vector2 n = normal();
+      Vector2d n = normal();
       x = n.x;
       y = n.y;
       return *this;
@@ -151,15 +113,15 @@ namespace catengine {
      * @return A new vector containing the normalized data of the calling
      *         vector.
      */
-    Vector2 normal() const
+    Vector2d normal() const
     {
       _decimal m = mag();
       if (m > 0.0f) {
         _decimal d = 1.0f / m;
-        return Vector2(x * d, y * d);
+        return Vector2d(x * d, y * d);
       }
       else {
-        return Vector2();
+        return Vector2d();
       }
     }
 
@@ -179,9 +141,19 @@ namespace catengine {
       return x * x + y * y;
     }
 
-    friend Vector2 lerp(Vector2 const& a, Vector2 const& b, _decimal s);
-    friend Vector2 operator+(_decimal a, Vector2 const& b);
-    friend Vector2 operator*(_decimal a, Vector2 const& b);
+    friend Vector2d operator+(Vector2d const& lhs, Vector2d const& rhs);
+    friend Vector2d operator-(Vector2d const& lhs, Vector2d const& rhs);
+    friend Vector2d operator*(Vector2d const& lhs, Vector2d const& rhs);
+
+    friend Vector2d operator+(Vector2d const& lhs, _decimal rhs);
+    friend Vector2d operator-(Vector2d const& lhs, _decimal rhs);
+    friend Vector2d operator*(Vector2d const& lhs, _decimal rhs);
+    friend Vector2d operator/(Vector2d const& lhs, _decimal rhs);
+
+    friend Vector2d operator+(_decimal a, Vector2d const& b);
+    friend Vector2d operator*(_decimal a, Vector2d const& b);
+
+    friend Vector2d lerp(Vector2d const& a, Vector2d const& b, _decimal s);
   };
 }
 

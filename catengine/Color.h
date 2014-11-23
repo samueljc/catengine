@@ -63,21 +63,26 @@ namespace catengine {
     }
 
     // bounded setters
-    inline void red(_decimal r) { this->r_ = bound(r); }
-    inline void green(_decimal g) { this->g_ = bound(g); }
-    inline void blue(_decimal b) { this->b_ = bound(b); }
-    inline void alpha(_decimal a) { this->a_ = bound(a); }
+    inline void r(_decimal r) { this->r_ = bound(r); }
+    inline void g(_decimal g) { this->g_ = bound(g); }
+    inline void b(_decimal b) { this->b_ = bound(b); }
+    inline void a(_decimal a) { this->a_ = bound(a); }
+
+    inline _decimal r() const { return r_; }
+    inline _decimal g() const { return g_; }
+    inline _decimal b() const { return b_; }
+    inline _decimal a() const { return a_; }
 
     // bounded integer setters
-    inline void red(_unsigned r) { this->r_ = from_int(r); }
-    inline void green(_unsigned g) { this->g_ = from_int(g); }
-    inline void blue(_unsigned b) { this->b_ = from_int(b); }
-    inline void alpha(_unsigned a) { this->a_ = from_int(a); }
+    inline void r_u(_unsigned r) { this->r_ = from_int(r); }
+    inline void g_u(_unsigned g) { this->g_ = from_int(g); }
+    inline void b_u(_unsigned b) { this->b_ = from_int(b); }
+    inline void a_u(_unsigned a) { this->a_ = from_int(a); }
 
-    inline _unsigned red() { return to_int(r_); }
-    inline _unsigned green() { return to_int(g_); }
-    inline _unsigned blue() { return to_int(b_); }
-    inline _unsigned alpha() { return to_int(a_); }
+    inline _unsigned r_u() const { return to_int(r_); }
+    inline _unsigned g_u() const { return to_int(g_); }
+    inline _unsigned b_u() const { return to_int(b_); }
+    inline _unsigned a_u() const { return to_int(a_); }
 
     inline bool operator==(Color const& other) const {
       return (r_ == other.r_ && g_ == other.g_ && b_ == other.b_ && a_ == other.a_);

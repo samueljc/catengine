@@ -10,8 +10,8 @@ D2DRenderer::~D2DRenderer()
 void D2DRenderer::initialize(HWND hwnd) 
 {
   HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &factory_);
-  if (hr != S_OK) {
-    // log an error
+  if (!SUCCEEDED(hr)) {
+    LOG(ERROR) << "could not create factory";
     dispose();
     return;
   }
@@ -42,7 +42,9 @@ void D2DRenderer::begin_draw(HWND hwnd)
     render_target_->SetTransform(D2D1::Matrix3x2F::Identity());
     render_target_->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-    set_color(catengine::Color::RED);
+    // reset our values for a fresh drawing cycle
+    thickness_ = 1.0f;
+    set_color(catengine::Color::BLACK);
   }
   if (hr == D2DERR_RECREATE_TARGET) {
     cleanup_render_target();
@@ -60,27 +62,11 @@ void D2DRenderer::set_color(catengine::Color const& color)
     LOG(ERROR) << "Render target is null.";
     return;
   }
-  D2D1_COLOR_F d2d_color;
+  D2D1_COLOR_F d2d_color{color.r(), color.g(), color.b(), color.a()};
 
   ID2D1SolidColorBrush* brush;
   render_target_->CreateSolidColorBrush(d2d_color, &brush);
   active_brush_.reset(brush, ReleaseBrush());
-}
-
-void D2DRenderer::draw_rect(catengine::Rectangle const& rect) const
-{
-  LOG(INFO) << "drawing rect";
-  render_target_->FillRectangle({ rect.x, rect.y, rect.width, rect.height }, active_brush_.get());
-}
-
-void D2DRenderer::draw_line(catengine::LineSegment const& line) const
-{
-
-}
-
-void D2DRenderer::draw_circle(catengine::Circle const& circle) const
-{
-
 }
 
 void D2DRenderer::resize(_unsigned width, _unsigned height)
