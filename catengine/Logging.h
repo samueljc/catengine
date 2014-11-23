@@ -2,6 +2,7 @@
 #define LOGGING_H
 
 #include <cassert>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <chrono>
@@ -41,23 +42,27 @@ namespace catengine {
     Message(char const* file, int line, Severity severity) :
       severity_(severity)
     {
+      info_ << "[";
       switch (severity_) {
       case Severity::INFO:
-        msg_ << "I ";
+        info_ << "I ";
         break;
       case Severity::WARNING:
-        msg_ << "W ";
+        info_ << "W ";
         break;
       case Severity::ERROR:
-        msg_ << "E ";
+        info_ << "E ";
         break;
       case Severity::FATAL:
-        msg_ << "F ";
+        info_ << "F ";
         break;
       }
 
       auto now = std::chrono::high_resolution_clock::now();
       time_t time = std::chrono::system_clock::to_time_t(now);
+      // need higher precision
+      auto whole_second = std::chrono::system_clock::from_time_t(time);
+      auto microsecond = std::chrono::duration_cast<std::chrono::microseconds>(now - whole_second).count();
 
       std::tm time_info;
 #ifdef _WIN32
@@ -82,20 +87,48 @@ namespace catengine {
       const char* file_name = strrchr(file, '\\') + 1;
       if (file_name == nullptr) file_name = file;
 
-      msg_ << "[" << time_str << " ";
-      msg_ << GetCurrentProcessId();
-      msg_ << " " << file_name << ":" << static_cast<unsigned>(line) << "] ";
+      info_ << time_str << "." << std::setfill('0') << std::setw(6) << microsecond << " ";
+      info_ << GetCurrentProcessId();
+      info_ << ":";
+      info_ << GetCurrentThreadId();
+      info_ << " " << file_name << ":" << static_cast<unsigned>(line) << "]";
     }
 
     virtual ~Message()
     {
-      // todo: trace backtrace here
-
       msg_ << std::endl;
-      if (severity_ == Severity::INFO || severity_ == Severity::WARNING)
-        std::cout << msg_.str();
-      else
-        std::cerr << msg_.str();
+
+#if _WIN32
+      HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+      CONSOLE_SCREEN_BUFFER_INFO csbi;
+      GetConsoleScreenBufferInfo(hstdout, &csbi);
+
+      switch (severity_) {
+      case Severity::INFO:
+        SetConsoleTextAttribute(hstdout,
+          FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        break;
+      case Severity::WARNING:
+        SetConsoleTextAttribute(hstdout, 
+          FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+        break;
+      case Severity::ERROR:
+        SetConsoleTextAttribute(hstdout, 
+          FOREGROUND_RED | FOREGROUND_INTENSITY);
+        break;
+      case Severity::FATAL:
+        SetConsoleTextAttribute(hstdout, 
+          FOREGROUND_RED | FOREGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+        break;
+      }
+
+      std::cout << info_.str();
+      SetConsoleTextAttribute(hstdout, csbi.wAttributes);
+      std::cout << " " << msg_.str();
+#else
+      std::cout << info_.str();
+      std::cout << " " << msg_.str();
+#endif
 
       if (severity_ == Severity::FATAL) {
         abort();
@@ -106,6 +139,7 @@ namespace catengine {
 
   private:
     Severity severity_;
+    std::ostringstream info_;
     std::ostringstream msg_;
   };
 }

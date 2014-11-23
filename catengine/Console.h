@@ -1,5 +1,5 @@
-#ifndef LOGGING_H
-#define LOGGING_H
+#ifndef CONSOLE_H
+#define CONSOLE_H
 
 #include <windows.h>
 #include <io.h>

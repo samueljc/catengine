@@ -87,6 +87,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Color-test.cpp" />
     <ClCompile Include="MathF-test.cpp" />
     <ClCompile Include="Polygon-test.cpp" />
     <ClCompile Include="QuadTree-test.cpp" />

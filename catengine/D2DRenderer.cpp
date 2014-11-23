@@ -35,15 +35,14 @@ void D2DRenderer::dispose()
 
 void D2DRenderer::begin_draw(HWND hwnd)
 {
-  LOG(INFO) << "begin draw";
   HRESULT hr = create_render_target(hwnd);
 
-  if (hr == S_OK) {
+  if (SUCCEEDED(hr)) {
     render_target_->BeginDraw();
     render_target_->SetTransform(D2D1::Matrix3x2F::Identity());
     render_target_->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-    set_color(catengine::Color::BLACK);
+    set_color(catengine::Color::RED);
   }
   if (hr == D2DERR_RECREATE_TARGET) {
     cleanup_render_target();
@@ -58,7 +57,7 @@ void D2DRenderer::end_draw()
 void D2DRenderer::set_color(catengine::Color const& color)
 {
   if (render_target_ == nullptr) {
-    LOG(ERROR) << "fart";
+    LOG(ERROR) << "Render target is null.";
     return;
   }
   D2D1_COLOR_F d2d_color;
@@ -70,7 +69,8 @@ void D2DRenderer::set_color(catengine::Color const& color)
 
 void D2DRenderer::draw_rect(catengine::Rectangle const& rect) const
 {
-  render_target_->DrawRectangle({ rect.x, rect.y, rect.width, rect.height }, active_brush_.get());
+  LOG(INFO) << "drawing rect";
+  render_target_->FillRectangle({ rect.x, rect.y, rect.width, rect.height }, active_brush_.get());
 }
 
 void D2DRenderer::draw_line(catengine::LineSegment const& line) const
@@ -91,7 +91,7 @@ void D2DRenderer::resize(_unsigned width, _unsigned height)
 HRESULT D2DRenderer::create_render_target(HWND hwnd)
 {
   if (factory_ == nullptr) {
-    // log an error
+    LOG(ERROR) << "no factory created";
     return D2DERR_WRONG_FACTORY;
   }
   if (render_target_ == nullptr) {
@@ -105,8 +105,8 @@ HRESULT D2DRenderer::create_render_target(HWND hwnd)
       &render_target_);
 
     if (hr != S_OK) {
-      // todo: log an error
-      return hr;;
+      LOG(ERROR) << "problem creating render target: " << hr;
+      return hr;
     }
   }
   return S_OK;

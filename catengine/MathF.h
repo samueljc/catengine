@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "Types.h"
+#include "Logging.h"
 
 namespace catengine {
   static _decimal const PI = 3.14159265359f;
@@ -12,13 +13,18 @@ namespace catengine {
   /**
    * Calculate the sqrt of x. Currently wraps the existing std::math sqrt
    * function, but this will allow me to easily modify it later to include
-   * caching or any other optimizations.
+   * caching or any other optimizations. If you provide a negative number
+   * we'll currently log an error and return the value passed in.
    *
    * @param x The value we want to get the square root of.
    * @return The square root.
    */
   inline _decimal sqrt(_decimal x)
   {
+    if (x < 0.0f) {
+      LOG(WARNING) << "attempted to calculate square root of negative value";
+      return x;
+    }
     return std::sqrt(x);
   }
 
