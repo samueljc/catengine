@@ -9,17 +9,19 @@ D2DRenderer::~D2DRenderer()
 
 void D2DRenderer::initialize(HWND hwnd) 
 {
-  HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &factory_);
-  if (!SUCCEEDED(hr)) {
-    LOG(ERROR) << "could not create factory";
-    dispose();
-    return;
-  }
+  if (factory_ == nullptr) {
+    HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &factory_);
+    if (!SUCCEEDED(hr)) {
+      LOG(ERROR) << "could not create factory";
+      dispose();
+      return;
+    }
 
-  FLOAT x, y;
-  factory_->GetDesktopDpi(&x, &y);
-  dpi_x_ = static_cast<_decimal>(x);
-  dpi_y_ = static_cast<_decimal>(y);
+    FLOAT x, y;
+    factory_->GetDesktopDpi(&x, &y);
+    dpi_x_ = static_cast<_decimal>(x);
+    dpi_y_ = static_cast<_decimal>(y);
+  }
 
   create_render_target(hwnd);
 }
@@ -33,22 +35,16 @@ void D2DRenderer::dispose()
   }
 }
 
-void D2DRenderer::begin_draw(HWND hwnd)
+void D2DRenderer::begin_draw()
 {
-  HRESULT hr = create_render_target(hwnd);
+  render_target_->BeginDraw();
+  render_target_->SetTransform(D2D1::Matrix3x2F::Identity());
+  render_target_->Clear(D2D1::ColorF(D2D1::ColorF::White));
+  render_target_->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 
-  if (SUCCEEDED(hr)) {
-    render_target_->BeginDraw();
-    render_target_->SetTransform(D2D1::Matrix3x2F::Identity());
-    render_target_->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-    // reset our values for a fresh drawing cycle
-    thickness_ = 1.0f;
-    set_color(catengine::Color::BLACK);
-  }
-  if (hr == D2DERR_RECREATE_TARGET) {
-    cleanup_render_target();
-  }
+  // reset our values for a fresh drawing cycle
+  thickness_ = 1.0f;
+  set_color(catengine::Color::BLACK);
 }
 
 void D2DRenderer::end_draw()

@@ -30,7 +30,7 @@ namespace catengine {
     */
     virtual void dispose() = 0;
 
-    virtual void begin_draw(HWND h_wnd) = 0;
+    virtual void begin_draw() = 0;
     virtual void end_draw() = 0;
 
     virtual void set_color(catengine::Color const& color) = 0;

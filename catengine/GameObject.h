@@ -96,7 +96,7 @@ namespace catengine {
 
     static Rectangle get_bounding_rect(GameObject const& c)
     {
-      return Rectangle(0, 0, 5, 5);
+      return Rectangle(c.position_.x, c.position_.y, 5.f, 5.f);
     }
 
   private:

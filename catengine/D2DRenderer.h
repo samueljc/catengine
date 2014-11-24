@@ -29,7 +29,7 @@ namespace catengine {
     void initialize(HWND hwnd);
     void dispose();
 
-    void begin_draw(HWND hwnd);
+    void begin_draw();
     void end_draw();
 
     void set_color(catengine::Color const& color);
@@ -71,7 +71,6 @@ namespace catengine {
     struct ReleaseBrush {
       void operator()(ID2D1Brush* p) const {
         if (p != nullptr) {
-          LOG(INFO) << "releasing";
           p->Release();
           p = nullptr;
         }

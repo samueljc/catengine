@@ -82,8 +82,10 @@
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="ShapeUtilities.h" />
     <ClInclude Include="SmartPointer.h" />
+    <ClInclude Include="Tracer.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Vector2d.h" />
   </ItemGroup>

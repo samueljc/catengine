@@ -48,7 +48,7 @@ namespace catengine {
     inline _decimal center_y() const 
     {
       if (height == 0.0f) return y;
-      return y + width / 2.0f;
+      return y + height / 2.0f;
     }
   };
 }

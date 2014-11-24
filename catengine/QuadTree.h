@@ -16,7 +16,7 @@ namespace catengine {
 
   public:
     QuadTree(Rectangle const& bounds, 
-        _unsigned split_size = 10, 
+        _unsigned split_size = 10,
         _unsigned prune_size = 5, 
         _unsigned max_depth = 5, 
         rect_func f = GameObject::get_bounding_rect) :
@@ -87,13 +87,13 @@ namespace catengine {
 
   private:
     struct Node {
-      static const _flag LEFT = 1 << 1;
-      static const _flag RIGHT = 1 << 2;
-      static const _flag TOP = 1 << 3;
-      static const _flag BOTTOM = 1 << 4;
+      static const _flag LEFT = 1 << 0;
+      static const _flag RIGHT = 1 << 1;
+      static const _flag TOP = 1 << 2;
+      static const _flag BOTTOM = 1 << 3;
 
-      static const _unsigned TOP_RIGHT = 0;
-      static const _unsigned TOP_LEFT = 1;
+      static const _unsigned TOP_LEFT = 0;
+      static const _unsigned TOP_RIGHT = 1;
       static const _unsigned BOTTOM_LEFT = 2;
       static const _unsigned BOTTOM_RIGHT = 3;
       static const _unsigned CHILD_COUNT = 4;
@@ -119,7 +119,7 @@ namespace catengine {
       {
       }
 
-      inline bool is_split() const { return children.size() == 4; }
+      inline bool is_split() const { return children.size() > 0; }
       inline bool can_split() const 
       {
         return data.size() >= tree->split_size() && depth < tree->max_depth();
@@ -131,10 +131,10 @@ namespace catengine {
        * @param The area we want to check over.
        */
       inline _flag get_range(Rectangle const& r) const {
-        _flag range = (r.left() <= mid_x) << 1;
-        range &= (mid_x <= r.right()) << 2;
-        range &= (r.top() <= mid_y) << 3;
-        range &= (mid_y <= r.bottom()) << 4;
+        _flag range = (r.left() <= mid_x) << 0;
+        range |= (mid_x <= r.right()) << 1;
+        range |= (r.top() <= mid_y) << 2;
+        range |= (mid_y <= r.bottom()) << 3;
         return range;
       }
 

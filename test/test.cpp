@@ -7,6 +7,7 @@
 #include "Console.h"
 
 #include "D2DRenderer.h"
+#include "Scene.h"
 
 #define MAX_LOADSTRING 100
 
@@ -21,8 +22,6 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
-catengine::D2DRenderer renderer;
-
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPTSTR    lpCmdLine,
@@ -30,8 +29,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-
-  catengine::Console::open();
 
  	// TODO: Place code here.
 	MSG msg;
@@ -50,15 +47,16 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TEST));
 
+  catengine::Console::open();
+  catengine::D2DRenderer renderer;
+  catengine::Scene scene;
+
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))
   {
-    renderer.begin_draw(msg.hwnd);
-
-    renderer.set_thickness(1.f);
-    renderer.draw_rect(catengine::Rectangle(50, 50, 50, 50));
-
-    renderer.end_draw();
+    renderer.initialize(msg.hwnd);
+    scene.update();
+    scene.render(renderer);
 
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
@@ -130,8 +128,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
-
-   renderer.initialize(hWnd);
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
