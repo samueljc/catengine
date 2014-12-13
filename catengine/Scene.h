@@ -15,13 +15,13 @@ namespace catengine {
       collision_tree_({ 0.f, 0.f, 640.f, 480.f })
     {
       for (int i = 0; i < 100; ++i) {
-        GameObject* p = new GameObject();
-        p->position({ float(rand() % 600), float(rand() % 420) });
-        objects_.emplace_back(GameObjectPtr(p));
+        GameObject p;
+        p.position({ float(rand() % 600), float(rand() % 420) });
+        objects_.emplace_back(p);
       }
 
-      for (auto ptr : objects_)
-        rendering_tree_.insert(ptr);
+      for (auto& object : objects_)
+        rendering_tree_.insert(&object);
     }
 
     void update() {
@@ -36,7 +36,7 @@ namespace catengine {
       auto collection = rendering_tree_.collect({ 0.0f, 0.0f, 640.0f, 480.0f });
       renderer.set_color(catengine::Color::ELECTRIC_LIME);
       for (auto c : collection) {
-        renderer.fill_rect(catengine::GameObject::get_bounding_rect(*c.get()));
+        renderer.fill_rect(catengine::GameObject::get_bounding_rect(*c));
       }
 
       catengine::Rectangle sel(200.0f, 200.0f, 100.0f, 100.0f);
@@ -44,14 +44,14 @@ namespace catengine {
       renderer.set_color(catengine::Color::BLUE);
       renderer.draw_rect(sel);
       for (auto c : collection) {
-        renderer.fill_rect(catengine::GameObject::get_bounding_rect(*c.get()));
+        renderer.fill_rect(catengine::GameObject::get_bounding_rect(*c));
       }
 
       renderer.end_draw();
     }
 
   private:
-    std::vector<GameObjectPtr> objects_;
+    std::vector<GameObject> objects_;
     QuadTree rendering_tree_;
     QuadTree collision_tree_;
   };

@@ -1,3 +1,6 @@
+// QuadTree.h
+// Written by: Samuel Clark
+
 #ifndef QUAD_treeH
 #define QUAD_treeH
 
@@ -63,24 +66,24 @@ namespace catengine {
     * appropriate node.
     * @param o A pointer to the object we want to insert.
     */
-    inline void insert(GameObjectPtr o) { root_.insert(o); }
+    inline void insert(GameObject* o) { root_.insert(o); }
 
     /**
     * Collect all of the potential collisions with o and store them in vo.
     * @param r Range we want to collect in.
     */
-    inline std::vector<GameObjectPtr> collect(Rectangle const& r) const {
-      std::vector<GameObjectPtr> rv;
+    inline std::vector<GameObject*> collect(Rectangle const& r) const {
+      std::vector<GameObject*> rv;
       if (r.width == 0.0f || r.height == 0.0f) return rv;
       root_.collect(r, rv);
       return rv;
     }
 
     /**
-    * Rebalance the tree moving everything into the new appropriate node.
-    */
+     * Rebalance the tree moving everything into the new appropriate node.
+     */
     inline void rebalance() { root_.rebalance(); }
-
+    
     inline void draw(Renderer& renderer) const {
       root_.draw(renderer);
     }
@@ -98,7 +101,7 @@ namespace catengine {
       static const _unsigned BOTTOM_RIGHT = 3;
       static const _unsigned CHILD_COUNT = 4;
 
-      std::vector<GameObjectPtr> data;
+      std::vector<GameObject*> data;
       Node* parent;
       std::vector<Node> children;
       QuadTree const* tree;
@@ -138,9 +141,9 @@ namespace catengine {
         return range;
       }
 
-      void insert(GameObjectPtr);
+      void insert(GameObject* go);
       void split();
-      void collect(Rectangle const&, std::vector<GameObjectPtr>&) const;
+      void collect(Rectangle const& rect, std::vector<GameObject*>&) const;
       void rebalance();
       void draw(Renderer& renderer) const;
     };

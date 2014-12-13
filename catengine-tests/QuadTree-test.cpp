@@ -18,9 +18,10 @@ namespace catenginetest {
     TEST_METHOD(insertion_test)
     {
       catengine::QuadTree tree(catengine::Rectangle(0, 0, 100, 100));
+      std::vector<catengine::GameObject> objects;
       for (int i = 0; i < 100; ++i) {
-        std::auto_ptr<catengine::GameObject> o;
-        tree.insert(catengine::GameObjectPtr(new catengine::GameObject()));
+        objects.emplace_back();
+        tree.insert(&(objects.back()));
       }
       Assert::AreEqual(100, (int)tree.count());
       tree.clear();

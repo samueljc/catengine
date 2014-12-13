@@ -2,7 +2,7 @@
 
 #include "Tracer.h"
 
-void catengine::QuadTree::Node::insert(GameObjectPtr o)
+void catengine::QuadTree::Node::insert(GameObject* o)
 {
   ++count;
   Rectangle r = tree->func(*o);
@@ -25,21 +25,20 @@ void catengine::QuadTree::Node::split()
   _decimal cw = bounds.width / 2.0f;
   _decimal ch = bounds.height / 2.0f;
 
-  children.reserve(4);
-  children.emplace_back(Node(this, Rectangle(bounds.left(), bounds.top(), cw, ch)));
-  children.emplace_back(Node(this, Rectangle(mid_x, bounds.top(), cw, ch)));
-  children.emplace_back(Node(this, Rectangle(bounds.left(), mid_y, cw, ch)));
-  children.emplace_back(Node(this, Rectangle(mid_x, mid_y, cw, ch)));
+  children.emplace_back(this, Rectangle{ bounds.left(), bounds.top(), cw, ch });
+  children.emplace_back(this, Rectangle{ mid_x, bounds.top(), cw, ch });
+  children.emplace_back(this, Rectangle{ bounds.left(), mid_y, cw, ch });
+  children.emplace_back(this, Rectangle{ mid_x, mid_y, cw, ch });
 
   for (_integer i = data.size() - 1; i >= 0; --i) {
-    GameObjectPtr o = data[i];
+    GameObject* o = data[i];
     data.erase(data.begin() + i);
     --count;
     insert(o);
   }
 }
 
-void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vector<GameObjectPtr>& vo) const
+void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vector<GameObject*>& vo) const
 {
   for (auto d : data) {
     vo.push_back(d);
@@ -56,7 +55,7 @@ void catengine::QuadTree::Node::collect(catengine::Rectangle const& r, std::vect
 
 void catengine::QuadTree::Node::rebalance()
 {
-  LOG(FATAL) << "NOT IMPLEMENTED";
+  LOG(FATAL) << "quad tree rebalancing not implemented";
 }
 
 void catengine::QuadTree::Node::draw(Renderer& renderer) const

@@ -16,6 +16,10 @@
 namespace catengine {
   class Renderer {
   public:
+    /* todo: make texture part of the renderer - different renderers rely on 
+     *       different texture formats, so i think this makes sense 
+     */
+
     Renderer() :
       dpi_x_(96.0f),
       dpi_y_(96.0f)

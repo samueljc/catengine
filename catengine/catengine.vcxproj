@@ -65,11 +65,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Animator.h" />
     <ClInclude Include="Circle.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="D2DRenderer.h" />
+    <ClInclude Include="D2DTexture.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Layer.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="LineSegment.h" />
@@ -85,6 +90,9 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShapeUtilities.h" />
     <ClInclude Include="SmartPointer.h" />
+    <ClInclude Include="SpriteSheetAnimation.h" />
+    <ClInclude Include="SpriteSheetAnimator.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Tracer.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Vector2d.h" />
@@ -98,6 +106,7 @@
     <ClCompile Include="Matrix2.cpp" />
     <ClCompile Include="Point2d.cpp" />
     <ClCompile Include="QuadTree.cpp" />
+    <ClCompile Include="SpriteSheetAnimator.cpp" />
     <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
