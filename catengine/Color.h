@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "Types.h"
+#include "MathF.h"
 
 namespace catengine {
   class Color {
@@ -84,10 +85,13 @@ namespace catengine {
     inline _unsigned b_u() const { return to_int(b_); }
     inline _unsigned a_u() const { return to_int(a_); }
 
-    inline bool operator==(Color const& other) const {
-      return (r_ == other.r_ && g_ == other.g_ && b_ == other.b_ && a_ == other.a_);
+    inline bool operator==(Color const& rhs) const {
+      return abserr(r_, rhs.r_) &&
+        abserr(g_, rhs.g_) &&
+        abserr(b_, rhs.b_) &&
+        abserr(a_, rhs.a_);
     }
-    inline bool operator!=(Color const& other) const { return !(*this == other); }
+    inline bool operator!=(Color const& rhs) const { return !(*this == rhs); }
 
     // don't want implicit conversion as it probably won't make sense most of the time
     explicit inline operator _unsigned() const {

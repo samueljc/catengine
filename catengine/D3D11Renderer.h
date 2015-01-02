@@ -5,9 +5,9 @@
 #include <windowsx.h>
 #include <d3d11.h>
 
-#include "Renderer.h"
-
 #pragma comment (lib, "d3d11.lib")
+
+#include "Renderer.h"
 
 namespace catengine {
   class D3D11Renderer : Renderer {

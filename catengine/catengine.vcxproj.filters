@@ -46,6 +46,12 @@
     <Filter Include="Source Files\Animation">
       <UniqueIdentifier>{db7b6230-0e8a-4f4e-81c9-2ad4c848f867}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scenes">
+      <UniqueIdentifier>{4d61e2ea-1a83-47a0-b6e6-df95dd36367b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resources">
+      <UniqueIdentifier>{9450c306-f550-44e8-9406-6269498151f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject.h">
@@ -55,9 +61,6 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="Matrix2.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Circle.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rectangle.h">
@@ -79,9 +82,6 @@
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Types.h">
-      <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="SmartPointer.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
@@ -117,29 +117,44 @@
     <ClInclude Include="Tracer.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Animator.h">
-      <Filter>Header Files\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="D2DTexture.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Layer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Circle.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
       <Filter>Header Files\Collision</Filter>
     </ClInclude>
+    <ClInclude Include="SpriteSheetAnimator.h">
+      <Filter>Header Files\Animation</Filter>
+    </ClInclude>
     <ClInclude Include="SpriteSheetAnimation.h">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="SpriteSheetAnimator.h">
+    <ClInclude Include="Animator.h">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBank.h">
+      <Filter>Header Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Exception.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11Renderer.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteBatch.h">
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +187,15 @@
     </ClCompile>
     <ClCompile Include="SpriteSheetAnimator.cpp">
       <Filter>Source Files\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Rectangle.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11Renderer.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteBatch.cpp">
+      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

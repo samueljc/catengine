@@ -1,14 +1,16 @@
-#ifndef ANIMATION_H
-#define ANIMATION_H
+// Animation.hpp - Samuel Clark
+
+#ifndef ANIMATION_HPP
+#define ANIMATION_HPP
 
 namespace catengine {
-  class Animation {
-  public:
-    virtual ~Animation() = 0
-    {
-      // this shit is bananas
-    }
-  };
+class Animation {
+public:
+  virtual ~Animation()
+  {
+    // empty class
+  }
+};
 }
 
 #endif

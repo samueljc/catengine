@@ -98,7 +98,7 @@ namespace catengine {
     {
       msg_ << std::endl;
 
-#if _WIN32
+#ifdef _WIN32
       HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
       CONSOLE_SCREEN_BUFFER_INFO csbi;
       GetConsoleScreenBufferInfo(hstdout, &csbi);

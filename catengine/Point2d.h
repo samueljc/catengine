@@ -29,25 +29,27 @@ namespace catengine {
       return !(*this == p);
     }
 
-    Point2d& operator+=(Vector2d const& v)
+    inline Point2d& operator+=(Vector2d const& v)
     {
       x += v.x;
       y += v.y;
       return *this;
     }
-    Point2d& operator-=(Vector2d const& v)
+    inline Point2d& operator-=(Vector2d const& v)
     {
       x -= v.x;
       y -= v.y;
       return *this;
     }
 
-    Point2d& operator=(Point2d const& p)
+    inline Point2d& operator=(Point2d const& p)
     {
       x = p.x;
       y = p.y;
       return *this;
     }
+
+    inline explicit operator Vector2d() const { return Vector2d(x, y); }
 
     friend Point2d operator+(Point2d const& lhs, Vector2d const& rhs);
     friend Point2d operator-(Point2d const& lhs, Vector2d const& rhs);
