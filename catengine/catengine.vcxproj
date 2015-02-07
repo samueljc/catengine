@@ -71,10 +71,13 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="D2DRenderer.h" />
+    <ClInclude Include="D3D11GeometryEffect.h" />
     <ClInclude Include="D3D11Renderer.h" />
+    <ClInclude Include="D3D11VertexTypes.h" />
+    <ClInclude Include="DisplayDesc.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="ID3D11Effect.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Console.h" />
@@ -84,12 +87,15 @@
     <ClInclude Include="MathF.h" />
     <ClInclude Include="Matrix2.h" />
     <ClInclude Include="Point2d.h" />
+    <ClInclude Include="Point3d.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Rectangle.h" />
+    <ClInclude Include="IRenderer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ResourceBank.h" />
+    <ClInclude Include="Results.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShapeUtilities.h" />
     <ClInclude Include="SpriteBatch.h" />
@@ -104,8 +110,9 @@
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Console.cpp" />
-    <ClCompile Include="D2DRenderer.cpp" />
+    <ClCompile Include="D3D11GeometryEffect.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
+    <ClCompile Include="D3D11VertexTypes.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Matrix2.cpp" />
     <ClCompile Include="Point2d.cpp" />
@@ -114,6 +121,10 @@
     <ClCompile Include="SpriteBatch.cpp" />
     <ClCompile Include="SpriteSheetAnimator.cpp" />
     <ClCompile Include="Vector2.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\Basic.hlsl" />
+    <None Include="Resources\Shaders\CompileShaders.cmd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

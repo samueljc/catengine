@@ -8,6 +8,30 @@
 #include "Renderer.h"
 
 namespace catengine {
+
+  class Scene {
+  public:
+    Scene()
+    {
+
+    }
+
+    void update()
+    {
+
+    }
+
+    void render(Renderer& renderer)
+    {
+      renderer.begin_draw();
+
+      renderer.set_color(catengine::Color::ELECTRIC_LIME);
+      renderer.fill_rect({ 0.0f, 0.0f, 50.0f, 50.0f });
+
+      renderer.end_draw();
+    }
+  };
+  /*
   class Scene {
   public:
     Scene() :
@@ -54,7 +78,7 @@ namespace catengine {
     std::vector<GameObject> objects_;
     QuadTree rendering_tree_;
     QuadTree collision_tree_;
-  };
+  };*/
 }
 
 #endif

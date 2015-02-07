@@ -12,7 +12,10 @@
 #undef ERROR
 #endif
 
-#define LOG_INFO    catengine::Message(__FILE__, __LINE__)
+#define SIMPLE
+
+#define LOG_SUCCESS catengine::Message(__FILE__, __LINE__, catengine::Severity::SUCCESS)
+#define LOG_INFO    catengine::Message(__FILE__, __LINE__, catengine::Severity::INFO)
 #define LOG_WARNING catengine::Message(__FILE__, __LINE__, catengine::Severity::WARNING)
 #define LOG_ERROR   catengine::Message(__FILE__, __LINE__, catengine::Severity::ERROR)
 #define LOG_FATAL   catengine::Message(__FILE__, __LINE__, catengine::Severity::FATAL)
@@ -21,6 +24,7 @@
 
 namespace catengine {
   enum class Severity {
+    SUCCESS,
     INFO,
     WARNING,
     ERROR,
@@ -44,6 +48,9 @@ namespace catengine {
     {
       info_ << "[";
       switch (severity_) {
+      case Severity::SUCCESS:
+        info_ << "S ";
+        break;
       case Severity::INFO:
         info_ << "I ";
         break;
@@ -57,6 +64,8 @@ namespace catengine {
         info_ << "F ";
         break;
       }
+
+#ifndef SIMPLE
 
       auto now = std::chrono::high_resolution_clock::now();
       time_t time = std::chrono::system_clock::to_time_t(now);
@@ -83,15 +92,16 @@ namespace catengine {
         // did not manage to copy everything into the array
       }
 
-      // let's just show the filename instead of the absolute path
-      const char* file_name = strrchr(file, '\\') + 1;
-      if (file_name == nullptr) file_name = file;
-
       info_ << time_str << "." << std::setfill('0') << std::setw(6) << microsecond << " ";
       info_ << GetCurrentProcessId();
       info_ << ":";
-      info_ << GetCurrentThreadId();
-      info_ << " " << file_name << ":" << static_cast<unsigned>(line) << "]";
+      info_ << GetCurrentThreadId() << " ";
+#endif
+
+      // let's just show the filename instead of the absolute path
+      const char* file_name = strrchr(file, '\\') + 1;
+      if (file_name == nullptr) file_name = file;
+      info_ << file_name << ":" << static_cast<unsigned>(line) << "]";
     }
 
     virtual ~Message()
@@ -104,6 +114,10 @@ namespace catengine {
       GetConsoleScreenBufferInfo(hstdout, &csbi);
 
       switch (severity_) {
+      case Severity::SUCCESS:
+        SetConsoleTextAttribute(hstdout,
+          FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+        break;
       case Severity::INFO:
         SetConsoleTextAttribute(hstdout,
           FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);

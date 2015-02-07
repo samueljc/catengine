@@ -6,13 +6,15 @@
 #include "test.h"
 #include "Console.h"
 
-#include "D2DRenderer.h"
+#include "Results.h"
+#include "D3D11Renderer.h"
 #include "Scene.h"
 
 #define MAX_LOADSTRING 100
 
 // Global Variables:
 HINSTANCE hInst;								// current instance
+HWND hWnd;
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 
@@ -48,15 +50,21 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TEST));
 
   catengine::Console::open();
-  catengine::D2DRenderer renderer;
+  catengine::Renderer renderer;
   catengine::Scene scene;
 
+  bool abort = false;
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))
   {
-    renderer.initialize(msg.hwnd);
-    scene.update();
-    scene.render(renderer);
+    if (msg.hwnd == hWnd) {
+      if (abort || renderer.initialize(msg.hwnd) == catengine::RESULTS::FAILURE) {
+        abort = true;
+        continue;
+      }
+      scene.update();
+      scene.render(renderer);
+    }
 
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
@@ -108,8 +116,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   HWND hWnd;
-
    hInst = hInstance; // Store instance handle in our global variable
 
    hWnd = CreateWindow(szWindowClass,
