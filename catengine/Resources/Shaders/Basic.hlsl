@@ -9,7 +9,7 @@ cbuffer MatrixBuffer
 // input layouts
 struct VSInput
 {
-    float3 position : POSITION;
+    float3 position : POSITION0;
     float4 color    : COLOR0;
 };
 

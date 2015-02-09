@@ -1,6 +1,8 @@
 #ifndef D3D11_GEOMETRY_EFFECT_H
 #define D3D11_GEOMETRY_EFFECT_H
 
+#include <DirectXMath.h>
+
 #include "ID3D11Effect.h"
 #include "D3D11VertexTypes.h"
 
@@ -10,9 +12,12 @@ namespace D3D11 {
 struct GeometryTraits {
   typedef VertexTypes::PositionColor InputLayout;
   typedef struct ConstantBufferType {
+    DirectX::XMMATRIX world;
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX proj;/*
     FLOAT world[16];
     FLOAT view[16];
-    FLOAT proj[16];
+    FLOAT proj[16];*/
   } ConstantBufferType;
 };
 

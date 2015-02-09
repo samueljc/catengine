@@ -9,7 +9,7 @@
 namespace catengine {
 namespace D3D11 {
 
-static void release_com_object(IUnknown** obj)
+static void release_obj(IUnknown** obj)
 {
   if (*obj != nullptr) {
     (*obj)->Release();
@@ -17,32 +17,55 @@ static void release_com_object(IUnknown** obj)
   }
 }
 
+const D3D_FEATURE_LEVEL Renderer::feature_levels_[] = 
+{
+  D3D_FEATURE_LEVEL_11_1,
+  D3D_FEATURE_LEVEL_11_0,
+  D3D_FEATURE_LEVEL_10_1,
+  D3D_FEATURE_LEVEL_10_0,
+  D3D_FEATURE_LEVEL_9_3,
+  D3D_FEATURE_LEVEL_9_2,
+  D3D_FEATURE_LEVEL_9_1,
+};
+
+const UINT Renderer::feature_levels_size_ = 7;
+
 RESULTS Renderer::initialize(HWND hwnd)
 {
   if (stored_hwnd_ == hwnd) {
     return RESULTS::SUCCESS;
+  } else if (initialized_) {
+    dispose();
   }
-  LOG(INFO) << "initializing d3d11 renderer";
+
   stored_hwnd_ = hwnd;
+  LOG(INFO) << "initializing d3d11 renderer";
 
   if (collect_display_info(hwnd) == RESULTS::FAILURE) {
     LOG(WARNING) << "unable to collect video card information: continuing initialization";
   }
 
-  if (init_swap_chain_and_device(hwnd)    != RESULTS::SUCCESS ||
-      init_back_buffer()                  != RESULTS::SUCCESS ||
-      init_depth_buffer()                 != RESULTS::SUCCESS ||
-      init_rasterizer_state()             != RESULTS::SUCCESS ||
-      init_sampler_state()                != RESULTS::SUCCESS ||
-      init_blend_state()                  != RESULTS::SUCCESS ||
-      init_viewport()                     != RESULTS::SUCCESS ||
-      init_basic_shaders()                != RESULTS::SUCCESS ||
-      init_geometry_buffers()             != RESULTS::SUCCESS ||
-      init_resources()                    != RESULTS::SUCCESS) {
+  try {
+    init_d3d_device();
+    init_dxgi_device();
+    init_d2d_device();
+    init_swap_chain(hwnd);
+    init_back_buffer();
+    //init_depth_buffer();
+    init_rasterizer_state();
+    init_sampler_state();
+    init_blend_state();
+    init_viewport();
+    init_basic_shaders();
+    init_geometry_buffers();
+    init_resources();
+  } catch (std::exception e) {
+    LOG(ERROR) << e.what();
     dispose();
     return RESULTS::FAILURE;
   }
 
+  initialized_ = true;
   LOG(SUCCESS) << "successfully initialized d3d11 renderer";
   return RESULTS::SUCCESS;
 }
@@ -50,6 +73,19 @@ RESULTS Renderer::initialize(HWND hwnd)
 void Renderer::dispose()
 {
   stored_hwnd_ = nullptr;
+  initialized_ = false;
+
+  release_obj(reinterpret_cast<IUnknown**>(&dev_));
+  release_obj(reinterpret_cast<IUnknown**>(&devcon_));
+
+  release_obj(reinterpret_cast<IUnknown**>(&dxgi_dev_));
+  release_obj(reinterpret_cast<IUnknown**>(&dxgi_adapter_));
+  release_obj(reinterpret_cast<IUnknown**>(&dxgi_factory_));
+
+  release_obj(reinterpret_cast<IUnknown**>(&d2d_factory_));
+  release_obj(reinterpret_cast<IUnknown**>(&d2d_dev_));
+  release_obj(reinterpret_cast<IUnknown**>(&d2d_devcon_));
+
   if (swap_chain_ != nullptr) {
     BOOL fullscreen;
     swap_chain_->GetFullscreenState(&fullscreen, nullptr);
@@ -60,29 +96,20 @@ void Renderer::dispose()
     swap_chain_->Release();
     swap_chain_ = nullptr;
   }
-  release_com_object(reinterpret_cast<IUnknown**>(&back_buffer_));
-  release_com_object(reinterpret_cast<IUnknown**>(&depth_stencil_buffer_));
-  release_com_object(reinterpret_cast<IUnknown**>(&depth_stencil_state_));
-  release_com_object(reinterpret_cast<IUnknown**>(&depth_stencil_view_));
-  release_com_object(reinterpret_cast<IUnknown**>(&raster_state_));
-  release_com_object(reinterpret_cast<IUnknown**>(&sampler_state_));
-  release_com_object(reinterpret_cast<IUnknown**>(&blend_state_));
-  release_com_object(reinterpret_cast<IUnknown**>(&dev_));
-  release_com_object(reinterpret_cast<IUnknown**>(&dev_context_));
-  release_com_object(reinterpret_cast<IUnknown**>(&geometry_vertex_buffer_));
-  release_com_object(reinterpret_cast<IUnknown**>(&geometry_index_buffer_));
-}
 
-RESULTS Renderer::swap_shader_state()
-{
-  if (dev_context_ == nullptr) {
-    LOG(ERROR) << "cannot swap shaders: device context is null";
-    return RESULTS::FAILURE;
-  }
+  release_obj(reinterpret_cast<IUnknown**>(&back_buffer_));
+  release_obj(reinterpret_cast<IUnknown**>(&target_bitmap_));
 
-  LOG(ERROR) << "not implemented";
+  release_obj(reinterpret_cast<IUnknown**>(&depth_stencil_buffer_));
+  release_obj(reinterpret_cast<IUnknown**>(&depth_stencil_state_));
+  release_obj(reinterpret_cast<IUnknown**>(&depth_stencil_view_));
 
-  return RESULTS::SUCCESS;
+  release_obj(reinterpret_cast<IUnknown**>(&raster_state_));
+  release_obj(reinterpret_cast<IUnknown**>(&sampler_state_));
+  release_obj(reinterpret_cast<IUnknown**>(&blend_state_));
+
+  release_obj(reinterpret_cast<IUnknown**>(&geometry_vertex_buffer_));
+  release_obj(reinterpret_cast<IUnknown**>(&geometry_index_buffer_));
 }
 
 void Renderer::begin_draw()
@@ -91,13 +118,16 @@ void Renderer::begin_draw()
   geometry_vertices_staged_.clear();
   geometry_indices_staged_.clear();
 
-  dev_context_->ClearRenderTargetView(back_buffer_, reinterpret_cast<float const*>(&color));
-  dev_context_->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+  devcon_->ClearRenderTargetView(back_buffer_, reinterpret_cast<float const*>(&color));
+  devcon_->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+  d2d_devcon_->BeginDraw();
 }
 
 void Renderer::end_draw()
 {
   render_geometry();
+  d2d_devcon_->EndDraw();
 
   if (vsync_enabled_) {
     swap_chain_->Present(1, 0);
@@ -116,70 +146,73 @@ void Renderer::render_geometry()
     return;
   }
 
-  dev_context_->OMSetRenderTargets(1, &back_buffer_, depth_stencil_view_);
-  dev_context_->RSSetViewports(1, &viewport_);
-
-  // states
-  dev_context_->OMSetBlendState(blend_state_, nullptr, 0xffffffff);
-  dev_context_->OMSetDepthStencilState(depth_stencil_state_, 1);
-  dev_context_->RSSetState(raster_state_);
-
-  // effects pipeline
-  geometry_effect_.apply(dev_context_);
+  HRESULT hr;
 
   // vertices / indices
   D3D11_MAPPED_SUBRESOURCE v_map;
   SecureZeroMemory(&v_map, sizeof(D3D11_MAPPED_SUBRESOURCE));
-  dev_context_->Map(geometry_vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &v_map);
+  if ((hr = devcon_->Map(geometry_vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &v_map)) != S_OK) {
+    _com_error err(hr);
+    LOG(ERROR) << "cannot map vertex buffer: " << err.ErrorMessage();
+    return;
+  }
   memcpy(v_map.pData, geometry_vertices_staged_.data(), max_geometry_vertices_);
-  dev_context_->Unmap(geometry_vertex_buffer_, 0);
+  devcon_->Unmap(geometry_vertex_buffer_, 0);
 
   D3D11_MAPPED_SUBRESOURCE i_map;
   SecureZeroMemory(&i_map, sizeof(D3D11_MAPPED_SUBRESOURCE));
-  dev_context_->Map(geometry_index_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &i_map);
+  if ((hr = devcon_->Map(geometry_index_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &i_map)) != S_OK) {
+    _com_error err(hr);
+    LOG(ERROR) << "cannot map index buffer: " << err.ErrorMessage();
+    return;
+  }
   memcpy(i_map.pData, geometry_indices_staged_.data(), max_geometry_indices_);
-  dev_context_->Unmap(geometry_index_buffer_, 0);
+  devcon_->Unmap(geometry_index_buffer_, 0);
+
+  // things that aren't really needed here
+  devcon_->OMSetRenderTargets(1, &back_buffer_, nullptr);// depth_stencil_view_);
+  devcon_->RSSetViewports(1, &viewport_);
+
+  // states
+  devcon_->OMSetBlendState(blend_state_, nullptr, 0xffffffff);
+  devcon_->OMSetDepthStencilState(depth_stencil_state_, 1);
+  devcon_->RSSetState(raster_state_);
+
+  // effects pipeline
+  geometry_effect_.apply(devcon_);
 
   unsigned vertex_stride = sizeof(GeometryVertex);
   unsigned vertex_offset = 0;
 
-  dev_context_->IASetVertexBuffers(0, 1, &geometry_vertex_buffer_, &vertex_stride, &vertex_offset);
-  dev_context_->IASetIndexBuffer(geometry_index_buffer_, DXGI_FORMAT_R16_UINT, 0);
+  devcon_->IASetVertexBuffers(0, 1, &geometry_vertex_buffer_, &vertex_stride, &vertex_offset);
+  devcon_->IASetIndexBuffer(geometry_index_buffer_, DXGI_FORMAT_R16_UINT, 0);
 
-  dev_context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  devcon_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-  dev_context_->DrawIndexed(geometry_indices_staged_.size(), 0, 0);
+  devcon_->DrawIndexed(geometry_indices_staged_.size(), 0, 0);
 }
 
 void Renderer::draw_line(LineSegment const& line)
 {
-  fill_rect({
-    line.start.x, line.start.y,
-    line.end.x - line.start.x, line.end.y - line.start.y
-  });
+  ID2D1SolidColorBrush* brush;
+  d2d_devcon_->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
+  d2d_devcon_->DrawLine({line.start.x, line.start.y}, {line.end.x, line.end.y}, brush);
 }
 
 void Renderer::draw_rect(Rectangle const& rect)
 {
-  LOG(ERROR) << "not implemented";
-  fill_rect(rect);/*
-  Point2d top_left{ rect.left(), rect.top() };
-  Point2d top_right{ rect.right(), rect.top() };
-  Point2d bottom_left{ rect.left(), rect.bottom() };
-  Point2d bottom_right{ rect.right(), rect.bottom() };
-  draw_line({ top_left, top_right });
-  draw_line({ top_right, bottom_right });
-  draw_line({ bottom_right, bottom_left });
-  draw_line({ bottom_left, top_left });*/
+  ID2D1SolidColorBrush* brush;
+  d2d_devcon_->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
+  d2d_devcon_->DrawRectangle({ rect.left(), rect.top(), rect.right(), rect.bottom() }, brush);
 }
 
 void Renderer::fill_rect(Rectangle const& rect)
 {
   short start = static_cast<short>(geometry_vertices_staged_.size());
-  geometry_vertices_staged_.emplace_back(Point3d{ rect.left(), rect.top(), 0.0f }, brush_color_);
-  geometry_vertices_staged_.emplace_back(Point3d{ rect.right(), rect.top(), 0.0f }, brush_color_);
-  geometry_vertices_staged_.emplace_back(Point3d{ rect.left(), rect.bottom(), 0.0f }, brush_color_);
-  geometry_vertices_staged_.emplace_back(Point3d{ rect.right(), rect.bottom(), 0.0f }, brush_color_);
+  geometry_vertices_staged_.emplace_back(Point3d{ rect.left(), rect.top(), 1.0f }, brush_color_);
+  geometry_vertices_staged_.emplace_back(Point3d{ rect.right(), rect.top(), 1.0f }, brush_color_);
+  geometry_vertices_staged_.emplace_back(Point3d{ rect.left(), rect.bottom(), 1.0f }, brush_color_);
+  geometry_vertices_staged_.emplace_back(Point3d{ rect.right(), rect.bottom(), 1.0f }, brush_color_);
 
   geometry_indices_staged_.emplace_back(start);
   geometry_indices_staged_.emplace_back(start + 1);
@@ -263,35 +296,24 @@ RESULTS Renderer::collect_display_info(IDXGIFactory*& factory,
   IDXGIOutput*& adapter_output,
   DXGI_MODE_DESC*& display_mode_list)
 {
-  HRESULT hr;
-  if ((hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "error creating DXGI factory: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
-  if ((hr = factory->EnumAdapters(0, &adapter)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "error getting enum adapters: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
-  if ((hr = adapter->EnumOutputs(0, &adapter_output)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "error getting enum outputs: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory), 
+    "error creating dxgi factory");
+  throw_if_failed(factory->EnumAdapters(0, &adapter), "error getting enum adapters");
+  throw_if_failed(adapter->EnumOutputs(0, &adapter_output), "error getting enum outputs");
 
   unsigned num_modes;
-  if ((hr = adapter_output->GetDisplayModeList(display_format_, DXGI_ENUM_MODES_INTERLACED, &num_modes, nullptr)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "error getting display mode list count: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(adapter_output->GetDisplayModeList(
+      display_format_,
+      DXGI_ENUM_MODES_INTERLACED,
+      &num_modes,
+      nullptr),
+    "error getting display mode list count");
   display_mode_list = new DXGI_MODE_DESC[num_modes];
-  if ((hr = adapter_output->GetDisplayModeList(display_format_, DXGI_ENUM_MODES_INTERLACED, &num_modes, display_mode_list)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "error getting display mode list: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(adapter_output->GetDisplayModeList(
+      display_format_, 
+      DXGI_ENUM_MODES_INTERLACED, 
+      &num_modes, display_mode_list),
+    "error getting display mode list");
 
   for (unsigned i = 0; i < num_modes; ++i) {
     if (display_mode_list[i].Width == canvas_width_ && display_mode_list[i].Height == canvas_height_) {
@@ -302,11 +324,7 @@ RESULTS Renderer::collect_display_info(IDXGIFactory*& factory,
 
   DXGI_ADAPTER_DESC adapter_desc;
   SecureZeroMemory(&adapter_desc, sizeof(DXGI_ADAPTER_DESC));
-  if ((hr = adapter->GetDesc(&adapter_desc)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "error getting adapter description: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(adapter->GetDesc(&adapter_desc), "error getting adapter description");
   size_t str_len;
   char m_adapter_desc[128];
   wcstombs_s(&str_len, m_adapter_desc, 128, adapter_desc.Description, 128);
@@ -322,80 +340,154 @@ RESULTS Renderer::collect_display_info(IDXGIFactory*& factory,
   return RESULTS::SUCCESS;
 }
 
-RESULTS Renderer::init_swap_chain_and_device(HWND hwnd)
+void Renderer::init_d3d_device()
 {
-  DXGI_SWAP_CHAIN_DESC scd;
-  SecureZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-  scd.BufferCount = 1;
-  scd.BufferDesc.Format = display_format_;
-  scd.BufferDesc.Width = canvas_width_;
-  scd.BufferDesc.Height = canvas_height_;
-  scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-  scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-  scd.BufferDesc.RefreshRate.Numerator = refresh_numerator_;
-  scd.BufferDesc.RefreshRate.Denominator = refresh_denominator_;
-  scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-  scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-  scd.OutputWindow = hwnd;
-  scd.SampleDesc.Count = sample_count_;
-  scd.SampleDesc.Quality = sample_quality_;
-  scd.Windowed = windowed_;
+  UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+  if (debug_) creation_flags |= D3D11_CREATE_DEVICE_DEBUG;
 
-  HRESULT r = D3D11CreateDeviceAndSwapChain(NULL,
+  D3D_FEATURE_LEVEL feature_level;
+
+  throw_if_failed(D3D11CreateDevice(
+      nullptr,
       D3D_DRIVER_TYPE_HARDWARE,
-      NULL,
-      (debug_) ? D3D11_CREATE_DEVICE_DEBUG : NULL,
-      NULL,
-      NULL,
+      nullptr,
+      creation_flags,
+      feature_levels_,
+      feature_levels_size_,
       D3D11_SDK_VERSION,
-      &scd,
-      &swap_chain_,
       &dev_,
-      NULL,
-      &dev_context_);
+      &feature_level,
+      &devcon_),
+    "failed to initialized d3d device and context");
 
-  if (r != S_OK) {
-    _com_error err(r);
-    LOG(ERROR) << "failed to create swap chain and device: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
-  LOG(SUCCESS) << "successfully initialized swap chain and device";
-  return RESULTS::SUCCESS;
+  LOG(SUCCESS) << "successfully initialized d3d device";
 }
 
-RESULTS Renderer::init_back_buffer()
-{
-  if (swap_chain_ == nullptr) {
-    LOG(ERROR) << "cannot create back_buffer: swap chain is null";
-    return RESULTS::FAILURE;
-  } else if (dev_ == nullptr) {
-    LOG(ERROR) << "cannot create back_buffer: device is null"; 
-    return RESULTS::FAILURE;
-  }
-
-  ID3D11Texture2D* back_buffer;
-  swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&back_buffer);
-
-  HRESULT hr = dev_->CreateRenderTargetView(back_buffer, NULL, &back_buffer_);
-  back_buffer->Release();
-
-  if (hr != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "failed to create back_buffer: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
-  LOG(SUCCESS) << "successfully initialized back buffer";
-  return RESULTS::SUCCESS;
-}
-
-RESULTS Renderer::init_depth_buffer()
+void Renderer::init_dxgi_device()
 {
   if (dev_ == nullptr) {
-    LOG(ERROR) << "cannot create depth buffer: device is null";
-    return RESULTS::FAILURE;
+    throw std::exception("could not initialize dxgi device: d3d device is null");
   }
 
-  HRESULT hr;
+  throw_if_failed(dev_->QueryInterface(__uuidof(IDXGIDevice1), (void**)&dxgi_dev_),
+    "could not query dxgi device from d3d device");
+
+  throw_if_failed(dxgi_dev_->GetAdapter(&dxgi_adapter_),
+    "could not get dxgi adapter");
+
+  throw_if_failed(dxgi_adapter_->GetParent(IID_PPV_ARGS(&dxgi_factory_)),
+    "could not get dxgi factory");
+
+  LOG(SUCCESS) << "successfully initialized dxgi device, adapter, and factory";
+}
+
+void Renderer::init_d2d_device()
+{
+  if (dxgi_dev_ == nullptr) {
+    throw new std::exception("could not initialize d2d device: dxgi device is null");
+  }
+
+  D2D1_FACTORY_OPTIONS options;
+  SecureZeroMemory(&options, sizeof(D2D1_FACTORY_OPTIONS));
+  options.debugLevel = (debug_) ? D2D1_DEBUG_LEVEL_WARNING : D2D1_DEBUG_LEVEL_NONE;
+
+  throw_if_failed(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,
+      __uuidof(ID2D1Factory1),
+      &options,
+      (void**)&d2d_factory_),
+    "failed to create d2d factory");
+
+  throw_if_failed(d2d_factory_->CreateDevice(dxgi_dev_, &d2d_dev_),
+    "could not create d2d device");
+
+  throw_if_failed(d2d_dev_->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2d_devcon_),
+    "could not create d2d device context");
+
+  LOG(SUCCESS) << "successfully initialized d2d device, context, and factory";
+}
+
+void Renderer::init_swap_chain(HWND hwnd)
+{
+  if (dxgi_factory_ == nullptr) {
+    throw std::exception("could not initialize swap chain: dxgi factory is null");
+  } else if (dev_ == nullptr) {
+    throw std::exception("could not initialize swap chain: d3d device is null");
+  }
+
+  DXGI_SWAP_CHAIN_DESC sc_desc;
+  SecureZeroMemory(&sc_desc, sizeof(DXGI_SWAP_CHAIN_DESC));
+  sc_desc.BufferDesc.Width = canvas_width_;
+  sc_desc.BufferDesc.Height = canvas_height_;
+  sc_desc.BufferDesc.RefreshRate.Numerator = refresh_numerator_;
+  sc_desc.BufferDesc.RefreshRate.Denominator = refresh_denominator_;
+  sc_desc.BufferDesc.Format = display_format_;
+  sc_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+  sc_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_CENTERED;
+  sc_desc.SampleDesc.Count = sample_count_;
+  sc_desc.SampleDesc.Quality = sample_quality_;
+  sc_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+  sc_desc.BufferCount = 2;
+  sc_desc.OutputWindow = hwnd;
+  sc_desc.Windowed = windowed_;
+  sc_desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+  sc_desc.Flags = 0;
+
+  throw_if_failed(dxgi_factory_->CreateSwapChain(dev_, &sc_desc, &swap_chain_),
+    "could not create swap chain");
+
+  throw_if_failed(dxgi_dev_->SetMaximumFrameLatency(1), "could not set max frame latency");
+
+  LOG(SUCCESS) << "successfully initialized swap chain and device";
+}
+
+void Renderer::init_back_buffer()
+{
+  if (swap_chain_ == nullptr) {
+    throw std::exception("cannot create back buffer: swap chain is null");
+  } else if (dev_ == nullptr) {
+    throw std::exception("canont create back buffer: d3d device is null");
+  }
+
+  // create the d3d backbuffer
+  ID3D11Texture2D* back_buffer;
+  throw_if_failed(swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&back_buffer),
+    "could not get buffer from swap chain");
+
+  throw_if_failed(dev_->CreateRenderTargetView(back_buffer, nullptr, &back_buffer_),
+    "could not create render target view");
+
+  // create the d2d back buffer
+  IDXGISurface1* dxgi_back_buffer;
+  throw_if_failed(swap_chain_->GetBuffer(0, __uuidof(IDXGISurface1), (void**)&dxgi_back_buffer),
+    "could not get dxgi buffer from swap chain");
+
+  D2D1_BITMAP_PROPERTIES1 bitmap_properties;
+  SecureZeroMemory(&bitmap_properties, sizeof(D2D1_BITMAP_PROPERTIES1));
+  bitmap_properties.pixelFormat.format = display_format_;
+  bitmap_properties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_IGNORE;
+  bitmap_properties.dpiX = dpi_x_;
+  bitmap_properties.dpiY = dpi_y_;
+  bitmap_properties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
+
+  if (d2d_devcon_->CreateBitmapFromDxgiSurface(dxgi_back_buffer, &bitmap_properties, &target_bitmap_) != S_OK) {
+    throw std::exception("could not create bitmap from dxgi surface");
+  }
+  d2d_devcon_->SetTarget(target_bitmap_);
+
+  dxgi_back_buffer->Release(); // todo: make sure this is alright
+  back_buffer->Release();
+
+  LOG(SUCCESS) << "successfully initialized back buffer";
+}
+
+void Renderer::init_depth_buffer()
+{
+  if (dev_ == nullptr) {
+    throw std::exception("cannot create depth buffer: d3d device is null");
+  }
+
+  LOG(FATAL) << "depth buffer is broken and stops any rendering";
+
   D3D11_TEXTURE2D_DESC db_desc;
   SecureZeroMemory(&db_desc, sizeof(D3D11_TEXTURE2D_DESC));
   db_desc.Width = canvas_width_;
@@ -408,11 +500,8 @@ RESULTS Renderer::init_depth_buffer()
   db_desc.Usage = D3D11_USAGE_DEFAULT;
   db_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-  if ((hr = dev_->CreateTexture2D(&db_desc, NULL, &depth_stencil_buffer_)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "failed to create depth stencil buffer: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateTexture2D(&db_desc, nullptr, &depth_stencil_buffer_),
+    "failed to create depth stencil buffer");
 
   D3D11_DEPTH_STENCIL_DESC ds_desc;
   SecureZeroMemory(&ds_desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -420,7 +509,7 @@ RESULTS Renderer::init_depth_buffer()
   ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
   ds_desc.DepthFunc = D3D11_COMPARISON_LESS;
 
-  ds_desc.StencilEnable = true;
+  ds_desc.StencilEnable = false;
   ds_desc.StencilReadMask = 0xff;
   ds_desc.StencilWriteMask = 0xff;
 
@@ -434,11 +523,8 @@ RESULTS Renderer::init_depth_buffer()
   ds_desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
   ds_desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-  if ((hr = dev_->CreateDepthStencilState(&ds_desc, &depth_stencil_state_)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "failed to create depth stencil state state: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateDepthStencilState(&ds_desc, &depth_stencil_state_),
+    "failed to create depth stencil state state");
 
   D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc;
   SecureZeroMemory(&dsv_desc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
@@ -446,28 +532,23 @@ RESULTS Renderer::init_depth_buffer()
   dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
   dsv_desc.Texture2D.MipSlice = 0;
 
-  if ((hr = dev_->CreateDepthStencilView(depth_stencil_buffer_, &dsv_desc, &depth_stencil_view_)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "failed to create depth stencil view: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateDepthStencilView(depth_stencil_buffer_, &dsv_desc, &depth_stencil_view_),
+    "failed to create depth stencil view");
+
   LOG(SUCCESS) << "successfully initialized depth stencil";
-  return RESULTS::SUCCESS;
 }
 
-RESULTS Renderer::init_rasterizer_state()
+void Renderer::init_rasterizer_state()
 {
   if (dev_ == nullptr) {
-    LOG(ERROR) << "cannot create rasterizer state: device is null";
-    return RESULTS::FAILURE;
+    throw std::exception("cannot create rasterizer state: d3d device is null");
   }
 
-  HRESULT hr;
   D3D11_RASTERIZER_DESC raster_desc;
   SecureZeroMemory(&raster_desc, sizeof(D3D11_RASTERIZER_DESC));
   raster_desc.AntialiasedLineEnable = false;
   raster_desc.FillMode = D3D11_FILL_SOLID;
-  raster_desc.CullMode = D3D11_CULL_BACK;
+  raster_desc.CullMode = D3D11_CULL_NONE;
   raster_desc.DepthBias = 0;
   raster_desc.DepthBiasClamp = 0.0f;
   raster_desc.DepthClipEnable = true;
@@ -476,26 +557,21 @@ RESULTS Renderer::init_rasterizer_state()
   raster_desc.ScissorEnable = false;
   raster_desc.SlopeScaledDepthBias = 0.0f;
 
-  if ((hr = dev_->CreateRasterizerState(&raster_desc, &raster_state_)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "cannot create rasterizer state: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateRasterizerState(&raster_desc, &raster_state_),
+    "cannot create rasterizer state");
+
   LOG(SUCCESS) << "successfully initialized rasterizer state";
-  return RESULTS::SUCCESS;
 }
 
-RESULTS Renderer::init_sampler_state()
+void Renderer::init_sampler_state()
 {
   if (dev_ == nullptr) {
-    LOG(ERROR) << "cannot create sampler state: device is null";
-    return RESULTS::FAILURE;
+    throw std::exception("cannot create sampler state: d3d device is null");
   }
 
-  HRESULT hr;
   D3D11_SAMPLER_DESC desc;
   SecureZeroMemory(&desc, sizeof(D3D11_SAMPLER_DESC));
-  desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+  desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
   desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
   desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
   desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -505,32 +581,26 @@ RESULTS Renderer::init_sampler_state()
   desc.MipLODBias = 0.0f;
   desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 
-  if ((hr = dev_->CreateSamplerState(&desc, &sampler_state_)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "cannot create sampler state: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateSamplerState(&desc, &sampler_state_), 
+    "cannot create sampler state");
 
   LOG(SUCCESS) << "successfully initialized sampler state";
-  return RESULTS::SUCCESS;
 }
 
-RESULTS Renderer::init_blend_state()
+void Renderer::init_blend_state()
 {
   return create_blend_state(D3D11_BLEND_ONE, D3D11_BLEND_INV_SRC_ALPHA, D3D11_BLEND_OP_ADD, &blend_state_);
 }
 
-RESULTS Renderer::create_blend_state(D3D11_BLEND src_blend,
+void Renderer::create_blend_state(D3D11_BLEND src_blend,
   D3D11_BLEND dest_blend,
   D3D11_BLEND_OP blend_op,
   ID3D11BlendState** blend_state)
 {
   if (dev_ == nullptr) {
-    LOG(ERROR) << "cannot create blend state: device is null";
-    return RESULTS::FAILURE;
+    throw std::exception("cannot create blend state: d3d device is null");
   }
 
-  HRESULT hr;
   D3D11_BLEND_DESC blend_desc;
   SecureZeroMemory(&blend_desc, sizeof(D3D11_BLEND_DESC));
   blend_desc.RenderTarget[0].BlendEnable = true;
@@ -540,16 +610,13 @@ RESULTS Renderer::create_blend_state(D3D11_BLEND src_blend,
 
   blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-  if ((hr = dev_->CreateBlendState(&blend_desc, blend_state)) != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "cannot create blend state: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateBlendState(&blend_desc, blend_state),
+    "cannot create blend state");
+
   LOG(SUCCESS) << "successfully created blend state";
-  return RESULTS::SUCCESS;
 }
 
-RESULTS Renderer::init_viewport()
+void Renderer::init_viewport()
 {
   SecureZeroMemory(&viewport_, sizeof(D3D11_VIEWPORT));
 
@@ -558,24 +625,26 @@ RESULTS Renderer::init_viewport()
   viewport_.Width = static_cast<FLOAT>(canvas_width_);
   viewport_.Height = static_cast<FLOAT>(canvas_height_);
   viewport_.MinDepth = 0.f;
-  viewport_.MaxDepth = 0.f;
+  viewport_.MaxDepth = 1.f;
 
   LOG(SUCCESS) << "successfully initialized viewport";
-  return RESULTS::SUCCESS;
 }
 
-RESULTS Renderer::init_basic_shaders()
+void Renderer::init_basic_shaders()
 {
-  return geometry_effect_.initialize(dev_);
+  geometry_effect_.initialize(dev_);
 }
 
-RESULTS Renderer::init_resources()
+void Renderer::init_resources()
 {
-  return RESULTS::SUCCESS;
 }
 
-RESULTS Renderer::init_geometry_buffers()
+void Renderer::init_geometry_buffers()
 {
+  if (dev_ == nullptr) {
+    throw std::exception("could not create geometry buffers: d3d device is null");
+  }
+
   D3D11_BUFFER_DESC vbd;
   SecureZeroMemory(&vbd, sizeof(D3D11_BUFFER_DESC));
   vbd.Usage = D3D11_USAGE_DYNAMIC;
@@ -583,12 +652,8 @@ RESULTS Renderer::init_geometry_buffers()
   vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
   vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-  auto hr = dev_->CreateBuffer(&vbd, nullptr, &geometry_vertex_buffer_);
-  if (hr != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "failed to create geometry vertex buffer: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateBuffer(&vbd, nullptr, &geometry_vertex_buffer_),
+    "failed to create geometry vertex buffer");
 
   geometry_vertices_staged_.reserve(max_geometry_vertices_);
 
@@ -601,16 +666,11 @@ RESULTS Renderer::init_geometry_buffers()
   ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
   ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-  hr = dev_->CreateBuffer(&ibd, nullptr, &geometry_index_buffer_);
-  if (hr != S_OK) {
-    _com_error err(hr);
-    LOG(ERROR) << "failed to create geometry index buffer: " << err.ErrorMessage();
-    return RESULTS::FAILURE;
-  }
+  throw_if_failed(dev_->CreateBuffer(&ibd, nullptr, &geometry_index_buffer_),
+    "failed to create geometry index buffer");
 
   geometry_indices_staged_.reserve(max_geometry_indices_);
   LOG(SUCCESS) << "successfully initialized geometry buffers";
-  return RESULTS::SUCCESS;
 }
 }
 }

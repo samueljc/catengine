@@ -26,7 +26,11 @@ namespace catengine {
       renderer.begin_draw();
 
       renderer.set_color(catengine::Color::ELECTRIC_LIME);
-      renderer.fill_rect({ 0.0f, 0.0f, 50.0f, 50.0f });
+      renderer.fill_rect({ 5.0f, 5.0f, 50.0f, 50.0f });
+
+      renderer.set_color(catengine::Color::BLUE);
+      renderer.set_thickness(1.0f);
+      renderer.draw_rect({ 60.0f, 5.0f, 50.0f, 50.0f });
 
       renderer.end_draw();
     }

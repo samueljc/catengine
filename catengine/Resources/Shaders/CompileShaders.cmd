@@ -14,7 +14,7 @@ if %error% == 0 (
 exit /b
 
 :CompileShader
-set fxc="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\fxc.exe" /nologo /T%3_4_0 /E%2 /FhCompiled\%1_%2.inc /Vn%1_%2 %1.hlsl
+set fxc="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\fxc.exe" /Zi /nologo /T%3_4_0 /E%2 /FhCompiled\%1_%2.inc /Vn%1_%2 %1.hlsl
 echo %fxc%
 %fxc% || set error=1
 exit /b

@@ -1,7 +1,5 @@
 #include "D3D11GeometryEffect.h"
 
-#include <DirectXMath.h>
-
 namespace catengine {
 namespace D3D11 {
 
@@ -72,25 +70,22 @@ RESULTS GeometryEffect::create_constants_buffer(ID3D11Device* device)
   buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
   ConstantBuffer buffer;
-  SecureZeroMemory(&buffer, sizeof(buffer));
-  buffer.world[0] = 1;
-  buffer.world[5] = 1;
-  buffer.world[10] = 1;
-  buffer.world[15] = 1;
+  SecureZeroMemory(&buffer, sizeof(ConstantBuffer));
+  buffer.world = DirectX::XMMatrixIdentity();
 
-  //DirectX::FXMMATRIX ortho = DirectX::XMMatrixOrthographicOffCenterRH(0, 600, 0, 400, 0, 1);
-  DirectX::XMMATRIX ortho = DirectX::XMMatrixOrthographicLH(600.f, 400.f, 0.f, 1.f);
+  DirectX::XMMATRIX ortho = DirectX::XMMatrixOrthographicOffCenterLH(0.f, 600.f, 0.f, 400.f, 0.1f, 100.f);
   
   DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(
-    DirectX::XMVectorSet(0.f, 0.f, -1.f, 0.f), 
+    DirectX::XMVectorSet(0.f, 0.f, -10.f, 0.f), 
     DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f),
     DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f));
-  ortho = DirectX::XMMatrixTranspose(ortho);
-  view = DirectX::XMMatrixTranspose(view);
-  memcpy(&buffer.proj, &ortho, sizeof(DirectX::XMMATRIX));
-  memcpy(&buffer.view, &view, sizeof(DirectX::XMMATRIX));
+
+  buffer.world = DirectX::XMMatrixTranspose(buffer.world);
+  buffer.view = DirectX::XMMatrixTranspose(view);
+  buffer.proj = DirectX::XMMatrixTranspose(ortho);
 
   D3D11_SUBRESOURCE_DATA data;
+  SecureZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
   data.pSysMem = &buffer;
 
   if ((hr = device->CreateBuffer(&buffer_desc, &data, &constants_)) != S_OK) {

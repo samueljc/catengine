@@ -39,7 +39,9 @@ public:
     dpi_y_(96.0f),
     canvas_width_(0),
     canvas_height_(0),
-    vsync_enabled_(false)
+    vsync_enabled_(false),
+    thickness_(1.0f),
+    half_thickness_(0.5f)
   {
   }
   virtual ~IRenderer() = default;
@@ -73,7 +75,12 @@ public:
   inline void set_color(Color color) { brush_color_ = color; }
   inline Color get_color() const { return brush_color_; }
 
-  inline void set_thickness(_decimal thickness) { thickness_ = thickness; }
+  inline void set_thickness(_decimal thickness) 
+  {
+    if (thickness <= 0.0f) return;
+    thickness_ = thickness;
+    half_thickness_ = thickness_ / 2.0f;
+  }
   inline _decimal get_thickness() const { return thickness_; }
 
 protected:
@@ -87,6 +94,7 @@ protected:
 
   Color brush_color_;
   _decimal thickness_;
+  _decimal half_thickness_;
 };
 }
 
