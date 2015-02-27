@@ -71,8 +71,19 @@ public:
   void draw_circle(Circle const& rect);
   void fill_circle(Circle const& circle);
   void resize(_unsigned x, _unsigned y);
+  void resize(HWND hwnd)
+  {
+    initialize_size_dependent_resources(hwnd);
+  }
 
-  LRESULT CALLBACK WindowProc(HWND h_wnd, UINT message, WPARAM w_param, LPARAM l_param);
+  LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
+  {/*
+    switch (message) {
+    case WM_SIZE:
+      initialize_size_dependent_resources(hwnd);
+      break;
+    }*/
+  }
 
   /**
     * Number of supported quality levels for the given device. Must have the
@@ -93,6 +104,9 @@ public:
 private:
   void render_geometry();
 
+  void device_lost();
+  void initialize_size_dependent_resources(HWND hwnd);
+
   RESULTS collect_display_info(HWND const& hwnd);
   RESULTS collect_display_info(IDXGIFactory*& factory,
     IDXGIAdapter*& adapter,
@@ -105,6 +119,7 @@ private:
   void init_swap_chain(HWND hwnd);
   void init_back_buffer();
   void init_depth_buffer();
+  void init_viewport();
   void init_rasterizer_state();
   void init_sampler_state();
   void init_blend_state();
@@ -112,7 +127,6 @@ private:
     D3D11_BLEND dest_blend,
     D3D11_BLEND_OP blend_op,
     ID3D11BlendState** blend_state);
-  void init_viewport();
   void init_basic_shaders();
   void init_geometry_buffers();
   void init_resources();

@@ -71,18 +71,24 @@ RESULTS GeometryEffect::create_constants_buffer(ID3D11Device* device)
 
   ConstantBuffer buffer;
   SecureZeroMemory(&buffer, sizeof(ConstantBuffer));
-  buffer.world = DirectX::XMMatrixIdentity();
+  DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 
-  DirectX::XMMATRIX ortho = DirectX::XMMatrixOrthographicOffCenterLH(0.f, 600.f, 0.f, 400.f, 0.1f, 100.f);
+  // left, right, bottom, top, nearz, farz
+  // bottom > top to make the top left corner the origin
+  FLOAT left = 0.f;
+  FLOAT top = 0.f;
+  FLOAT width = 640.f;
+  FLOAT height = 480.f;
+  // http://ezekiel.vancouver.wsu.edu/~cs442/lectures/viewing/viewing.pdf
+  DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicOffCenterLH(left, left + width, top + height, top, 0.1f, 100.f);
   
   DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(
-    DirectX::XMVectorSet(0.f, 0.f, -10.f, 0.f), 
-    DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f),
-    DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f));
+    DirectX::XMVectorSet(0.f, 0.f, -10.f, 0.f),       // camera position
+    DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f),         // focus position
+    DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f));        // up direction
 
-  buffer.world = DirectX::XMMatrixTranspose(buffer.world);
-  buffer.view = DirectX::XMMatrixTranspose(view);
-  buffer.proj = DirectX::XMMatrixTranspose(ortho);
+  // matrices need to be transposed for d3d11 - not for d3d10 or older though
+  buffer.wvp = DirectX::XMMatrixTranspose(proj * view * world);
 
   D3D11_SUBRESOURCE_DATA data;
   SecureZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));

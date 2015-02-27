@@ -12,12 +12,7 @@ namespace D3D11 {
 struct GeometryTraits {
   typedef VertexTypes::PositionColor InputLayout;
   typedef struct ConstantBufferType {
-    DirectX::XMMATRIX world;
-    DirectX::XMMATRIX view;
-    DirectX::XMMATRIX proj;/*
-    FLOAT world[16];
-    FLOAT view[16];
-    FLOAT proj[16];*/
+    DirectX::XMMATRIX wvp;
   } ConstantBufferType;
 };
 

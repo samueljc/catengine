@@ -67,6 +67,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Color.h" />
@@ -86,6 +87,7 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="MathF.h" />
     <ClInclude Include="Matrix2.h" />
+    <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Point2d.h" />
     <ClInclude Include="Point3d.h" />
     <ClInclude Include="Polygon.h" />

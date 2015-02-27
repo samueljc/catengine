@@ -28,7 +28,7 @@ const D3D_FEATURE_LEVEL Renderer::feature_levels_[] =
   D3D_FEATURE_LEVEL_9_1,
 };
 
-const UINT Renderer::feature_levels_size_ = 7;
+const UINT Renderer::feature_levels_size_ = sizeof(feature_levels_) / sizeof(D3D_FEATURE_LEVEL);
 
 RESULTS Renderer::initialize(HWND hwnd)
 {
@@ -119,15 +119,15 @@ void Renderer::begin_draw()
   geometry_indices_staged_.clear();
 
   devcon_->ClearRenderTargetView(back_buffer_, reinterpret_cast<float const*>(&color));
-  devcon_->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+  //devcon_->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-  d2d_devcon_->BeginDraw();
+  //d2d_devcon_->BeginDraw();
 }
 
 void Renderer::end_draw()
 {
   render_geometry();
-  d2d_devcon_->EndDraw();
+  //d2d_devcon_->EndDraw();
 
   if (vsync_enabled_) {
     swap_chain_->Present(1, 0);
@@ -207,7 +207,11 @@ void Renderer::draw_rect(Rectangle const& rect)
 }
 
 void Renderer::fill_rect(Rectangle const& rect)
-{
+{/*
+  ID2D1SolidColorBrush* brush;
+  d2d_devcon_->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
+  d2d_devcon_->FillRectangle({ rect.left(), rect.top(), rect.right(), rect.bottom() }, brush);*/
+
   short start = static_cast<short>(geometry_vertices_staged_.size());
   geometry_vertices_staged_.emplace_back(Point3d{ rect.left(), rect.top(), 1.0f }, brush_color_);
   geometry_vertices_staged_.emplace_back(Point3d{ rect.right(), rect.top(), 1.0f }, brush_color_);
@@ -235,9 +239,9 @@ void Renderer::fill_circle(Circle const& circle)
 
 void Renderer::resize(_unsigned x, _unsigned y)
 {
-  LOG(ERROR) << "not implemented";
+  swap_chain_->ResizeBuffers(2, 0, 0, display_format_, 0);
+  //LOG(ERROR) << "not implemented";
 }
-
 
 UINT Renderer::get_quality_levels()
 {
@@ -259,13 +263,13 @@ RESULTS Renderer::collect_display_info(HWND const& hwnd)
 
   RECT window_rect;
   if (GetWindowRect(hwnd, &window_rect) != TRUE) {
-    LOG(INFO) << "unable to get canvas size";
+    LOG(ERROR) << "unable to get canvas size";
     return RESULTS::FAILURE;
   } else if (window_rect.right - window_rect.left <= 0) {
-    LOG(INFO) << "invalid canvas size: width must be greater than 0";
+    LOG(ERROR) << "invalid canvas size: width must be greater than 0";
     return RESULTS::FAILURE;
   } else if (window_rect.bottom - window_rect.top <= 0) {
-    LOG(INFO) << "invalid canvas size: height must be greater than 0";
+    LOG(ERROR) << "invalid canvas size: height must be greater than 0";
     return RESULTS::FAILURE;
   }
   canvas_width_ = window_rect.right - window_rect.left;
@@ -335,7 +339,9 @@ RESULTS Renderer::collect_display_info(IDXGIFactory*& factory,
   display_desc_.refresh_numerator = refresh_numerator_;
   display_desc_.refresh_denominator = refresh_denominator_;
 
-  LOG(INFO) << display_desc_;
+  LOG(INFO) << display_desc_
+    << "window width: " << canvas_width_ << std::endl
+    << "window height: " << canvas_height_;
 
   return RESULTS::SUCCESS;
 }
@@ -406,6 +412,27 @@ void Renderer::init_d2d_device()
   LOG(SUCCESS) << "successfully initialized d2d device, context, and factory";
 }
 
+void Renderer::initialize_size_dependent_resources(HWND hwnd)
+{
+  if (swap_chain_ != nullptr) {
+    auto hr = swap_chain_->ResizeBuffers(2, canvas_width_, canvas_height_, display_format_, 0);
+
+    if (hr == DXGI_ERROR_DEVICE_REMOVED) {
+      dispose();
+      initialize(hwnd);
+      return;
+    } else {
+        throw_if_failed(hr, "could not resize buffers");
+    }
+  } else {
+    init_swap_chain(hwnd);
+  }
+
+  init_back_buffer();
+  init_depth_buffer();
+  init_viewport();
+}
+
 void Renderer::init_swap_chain(HWND hwnd)
 {
   if (dxgi_factory_ == nullptr) {
@@ -434,6 +461,7 @@ void Renderer::init_swap_chain(HWND hwnd)
 
   throw_if_failed(dxgi_factory_->CreateSwapChain(dev_, &sc_desc, &swap_chain_),
     "could not create swap chain");
+  dxgi_factory_->MakeWindowAssociation(hwnd, 0);
 
   throw_if_failed(dxgi_dev_->SetMaximumFrameLatency(1), "could not set max frame latency");
 
@@ -538,6 +566,20 @@ void Renderer::init_depth_buffer()
   LOG(SUCCESS) << "successfully initialized depth stencil";
 }
 
+void Renderer::init_viewport()
+{
+  SecureZeroMemory(&viewport_, sizeof(D3D11_VIEWPORT));
+
+  viewport_.TopLeftX = 0.f;
+  viewport_.TopLeftY = 0.f;
+  viewport_.Width = static_cast<FLOAT>(canvas_width_);
+  viewport_.Height = static_cast<FLOAT>(canvas_height_);
+  viewport_.MinDepth = 0.f;
+  viewport_.MaxDepth = 1.f;
+
+  LOG(SUCCESS) << "successfully initialized viewport";
+}
+
 void Renderer::init_rasterizer_state()
 {
   if (dev_ == nullptr) {
@@ -551,7 +593,8 @@ void Renderer::init_rasterizer_state()
   raster_desc.CullMode = D3D11_CULL_NONE;
   raster_desc.DepthBias = 0;
   raster_desc.DepthBiasClamp = 0.0f;
-  raster_desc.DepthClipEnable = true;
+  // Turning off depth clip as I'm having issues with it. Probably something to do with my matrices; I'll look at it again later.
+  raster_desc.DepthClipEnable = false;
   raster_desc.FrontCounterClockwise = false;
   raster_desc.MultisampleEnable = false;
   raster_desc.ScissorEnable = false;
@@ -614,20 +657,6 @@ void Renderer::create_blend_state(D3D11_BLEND src_blend,
     "cannot create blend state");
 
   LOG(SUCCESS) << "successfully created blend state";
-}
-
-void Renderer::init_viewport()
-{
-  SecureZeroMemory(&viewport_, sizeof(D3D11_VIEWPORT));
-
-  viewport_.TopLeftX = 0.f;
-  viewport_.TopLeftY = 0.f;
-  viewport_.Width = static_cast<FLOAT>(canvas_width_);
-  viewport_.Height = static_cast<FLOAT>(canvas_height_);
-  viewport_.MinDepth = 0.f;
-  viewport_.MaxDepth = 1.f;
-
-  LOG(SUCCESS) << "successfully initialized viewport";
 }
 
 void Renderer::init_basic_shaders()

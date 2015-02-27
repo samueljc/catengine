@@ -1,9 +1,7 @@
 // constant buffer
 cbuffer MatrixBuffer
 {
-	float4x4 world_matrix;
-	float4x4 view_matrix;
-	float4x4 proj_matrix;
+  float4x4 wvp;
 };
 
 // input layouts
@@ -16,21 +14,15 @@ struct VSInput
 struct PSInput
 {
     float4 position : SV_POSITION;
-    float4 color    : COLOR0;
+    float4 color    : COLOR;
 };
 
 // vertex shader
 PSInput VSBasic(VSInput input)
 {
   PSInput output;
-  output.position = float4(input.position, 1.0f);
 
-  // Calculate the position of the vertex against the world, view, and projection matrices.
-  output.position = mul(output.position, world_matrix);
-  output.position = mul(output.position, view_matrix);
-  output.position = mul(output.position, proj_matrix);
-
-  // Store the input color for the pixel shader to use.
+  output.position = mul(float4(input.position, 1.0f), wvp);
   output.color = input.color;
 
   return output;
