@@ -156,7 +156,7 @@ void Renderer::render_geometry()
     LOG(ERROR) << "cannot map vertex buffer: " << err.ErrorMessage();
     return;
   }
-  memcpy(v_map.pData, geometry_vertices_staged_.data(), max_geometry_vertices_);
+  memcpy(v_map.pData, geometry_vertices_staged_.data(), max_geometry_vertices_ * sizeof(GeometryVertex));
   devcon_->Unmap(geometry_vertex_buffer_, 0);
 
   D3D11_MAPPED_SUBRESOURCE i_map;
@@ -166,7 +166,7 @@ void Renderer::render_geometry()
     LOG(ERROR) << "cannot map index buffer: " << err.ErrorMessage();
     return;
   }
-  memcpy(i_map.pData, geometry_indices_staged_.data(), max_geometry_indices_);
+  memcpy(i_map.pData, geometry_indices_staged_.data(), max_geometry_indices_ * sizeof(short));
   devcon_->Unmap(geometry_index_buffer_, 0);
 
   // things that aren't really needed here
