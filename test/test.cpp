@@ -24,10 +24,12 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
-int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPTSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+catengine::Renderer renderer;
+
+int APIENTRY _tWinMain(HINSTANCE hInstance,
+                       HINSTANCE hPrevInstance,
+                       LPTSTR lpCmdLine,
+                       int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
@@ -50,7 +52,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TEST));
 
   catengine::Console::open();
-  catengine::Renderer renderer;
   catengine::Scene scene;
 
   bool abort = false;
@@ -123,8 +124,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
      WS_OVERLAPPEDWINDOW,
      CW_USEDEFAULT,
      0,
-     640,
-     480,
+     800,
+     600,
      NULL,
      NULL,
      hInstance,

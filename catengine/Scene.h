@@ -31,11 +31,6 @@ namespace catengine {
         renderer.set_color(catengine::Color::BLUE);
         renderer.fill_rect({ 5.0f, 5.0f + (55.0f * i), 50.0f, 50.0f });
       }
-      /*
-      renderer.set_color(catengine::Color::BLUE);
-      renderer.set_thickness(1.0f);
-      renderer.fill_rect({ 60.0f, 5.0f, 50.0f, 50.0f });
-      */
 
       renderer.end_draw();
     }
@@ -87,8 +82,7 @@ namespace catengine {
     std::vector<GameObject> objects_;
     QuadTree rendering_tree_;
     QuadTree collision_tree_;
-  };
-  */
+  };*/
 }
 
 #endif

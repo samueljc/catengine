@@ -121,13 +121,13 @@ void Renderer::begin_draw()
   devcon_->ClearRenderTargetView(back_buffer_, reinterpret_cast<float const*>(&color));
   //devcon_->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-  //d2d_devcon_->BeginDraw();
+  d2d_devcon_->BeginDraw();
 }
 
 void Renderer::end_draw()
 {
   render_geometry();
-  //d2d_devcon_->EndDraw();
+  d2d_devcon_->EndDraw();
 
   if (vsync_enabled_) {
     swap_chain_->Present(1, 0);
@@ -210,8 +210,8 @@ void Renderer::fill_rect(Rectangle const& rect)
 {/*
   ID2D1SolidColorBrush* brush;
   d2d_devcon_->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
-  d2d_devcon_->FillRectangle({ rect.left(), rect.top(), rect.right(), rect.bottom() }, brush);*/
-
+  d2d_devcon_->FillRectangle({ rect.left(), rect.top(), rect.right(), rect.bottom() }, brush);
+  */
   short start = static_cast<short>(geometry_vertices_staged_.size());
   geometry_vertices_staged_.emplace_back(Point3d{ rect.left(), rect.top(), 1.0f }, brush_color_);
   geometry_vertices_staged_.emplace_back(Point3d{ rect.right(), rect.top(), 1.0f }, brush_color_);
@@ -262,7 +262,7 @@ RESULTS Renderer::collect_display_info(HWND const& hwnd)
   DXGI_MODE_DESC* display_mode_list = nullptr;
 
   RECT window_rect;
-  if (GetWindowRect(hwnd, &window_rect) != TRUE) {
+  if (GetClientRect(hwnd, &window_rect) != TRUE) {
     LOG(ERROR) << "unable to get canvas size";
     return RESULTS::FAILURE;
   } else if (window_rect.right - window_rect.left <= 0) {
@@ -272,6 +272,7 @@ RESULTS Renderer::collect_display_info(HWND const& hwnd)
     LOG(ERROR) << "invalid canvas size: height must be greater than 0";
     return RESULTS::FAILURE;
   }
+  
   canvas_width_ = window_rect.right - window_rect.left;
   canvas_height_ = window_rect.bottom - window_rect.top;
 
@@ -614,7 +615,7 @@ void Renderer::init_sampler_state()
 
   D3D11_SAMPLER_DESC desc;
   SecureZeroMemory(&desc, sizeof(D3D11_SAMPLER_DESC));
-  desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  desc.Filter = D3D11_FILTER_ANISOTROPIC;//MIN_MAG_MIP_POINT;
   desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
   desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
   desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;

@@ -55,6 +55,9 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{b116620e-661b-42bd-9b29-9f1e50d6a671}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering\SoftwareRenderer">
+      <UniqueIdentifier>{4f24a5a3-1384-4ad2-bac0-a49453c2c2bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject.h">
@@ -177,10 +180,13 @@
     <ClInclude Include="D3D11GeometryEffect.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Matrix4x4.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector4.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
@@ -226,6 +232,12 @@
     </ClCompile>
     <ClCompile Include="D3D11GeometryEffect.cpp">
       <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix4x4.cpp">
+      <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

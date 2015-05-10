@@ -5,6 +5,7 @@
 
 #include "ID3D11Effect.h"
 #include "D3D11VertexTypes.h"
+#include "Camera.h"
 
 namespace catengine {
 namespace D3D11 {
@@ -25,6 +26,7 @@ public:
 
   RESULTS initialize(ID3D11Device* device);
   ShaderByteCode const& get_vertex_shader_byte_code() const override;
+  void update_camera(Camera const& camera);
 
 private:
   RESULTS create_vertex_shader(ID3D11Device* device);

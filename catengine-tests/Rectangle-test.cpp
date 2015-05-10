@@ -53,13 +53,13 @@ public:
   TEST_METHOD(center_x_test)
   {
     catengine::Rectangle r(5.0f, 5.0f, 10.0f, 10.0f);
-    Assert::AreEqual(7.5f, r.bottom(), d_);
+    Assert::AreEqual(10.f, r.center_x(), d_);
   }
 
   TEST_METHOD(center_y_test)
   {
     catengine::Rectangle r(5.0f, 5.0f, 10.0f, 10.0f);
-    Assert::AreEqual(7.5f, r.bottom(), d_);
+    Assert::AreEqual(10.f, r.center_y(), d_);
   }
 
   TEST_METHOD(equality_test)

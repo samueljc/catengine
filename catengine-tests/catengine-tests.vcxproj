@@ -87,10 +87,12 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera-test.cpp" />
     <ClCompile Include="Color-test.cpp" />
     <ClCompile Include="Logging-test.cpp" />
     <ClCompile Include="Map-test.cpp" />
     <ClCompile Include="MathF-test.cpp" />
+    <ClCompile Include="Matrix4x4-test.cpp" />
     <ClCompile Include="Point2d-test.cpp" />
     <ClCompile Include="Polygon-test.cpp" />
     <ClCompile Include="QuadTree-test.cpp" />

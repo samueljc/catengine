@@ -107,8 +107,10 @@
     <ClInclude Include="Tracer.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Vector2d.h" />
+    <ClInclude Include="Vector4.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Console.cpp" />
@@ -117,6 +119,7 @@
     <ClCompile Include="D3D11VertexTypes.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Matrix2.cpp" />
+    <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="Point2d.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Rectangle.cpp" />
