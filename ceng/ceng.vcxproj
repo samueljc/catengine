@@ -11,16 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D30B5CA5-4158-4A66-9734-5B5E3F5DD71E}</ProjectGuid>
-    <RootNamespace>EngineLib</RootNamespace>
-    <ProjectName>catengine</ProjectName>
+    <ProjectGuid>{AC064043-9A0D-4885-9C8F-48BC2F5EC04F}</ProjectGuid>
+    <RootNamespace>ceng</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -42,7 +41,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
@@ -65,72 +64,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Animation.h" />
-    <ClInclude Include="Animator.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Circle.h" />
-    <ClInclude Include="Collider.h" />
-    <ClInclude Include="Color.h" />
-    <ClInclude Include="Component.h" />
-    <ClInclude Include="Console.hpp" />
-    <ClInclude Include="D3D11GeometryEffect.h" />
-    <ClInclude Include="D3D11Renderer.h" />
-    <ClInclude Include="D3D11VertexTypes.h" />
-    <ClInclude Include="DisplayDesc.h" />
-    <ClInclude Include="Exception.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="ID3D11Effect.h" />
-    <ClInclude Include="Layer.h" />
-    <ClInclude Include="Line.h" />
-    <ClInclude Include="Console.h" />
-    <ClInclude Include="LineSegment.h" />
-    <ClInclude Include="Logging.h" />
-    <ClInclude Include="Map.h" />
-    <ClInclude Include="MathF.h" />
-    <ClInclude Include="Matrix2.h" />
-    <ClInclude Include="Matrix4x4.h" />
-    <ClInclude Include="Point2d.h" />
-    <ClInclude Include="Point3d.h" />
-    <ClInclude Include="Polygon.h" />
-    <ClInclude Include="QuadTree.h" />
-    <ClInclude Include="Ray.h" />
-    <ClInclude Include="Rectangle.h" />
-    <ClInclude Include="IRenderer.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="ResourceBank.h" />
-    <ClInclude Include="Results.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="ShapeUtilities.h" />
-    <ClInclude Include="SpriteBatch.h" />
-    <ClInclude Include="SpriteSheetAnimation.h" />
-    <ClInclude Include="SpriteSheetAnimator.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Tracer.h" />
-    <ClInclude Include="Types.h" />
-    <ClInclude Include="Vector2d.h" />
-    <ClInclude Include="Vector4.h" />
+    <ClInclude Include="Definitions.hpp" />
+    <ClInclude Include="Engine.hpp" />
+    <ClInclude Include="Logging.hpp" />
+    <ClInclude Include="SoundBuffer.hpp" />
+    <ClInclude Include="Types.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Circle.cpp" />
-    <ClCompile Include="Color.cpp" />
-    <ClCompile Include="Console.cpp" />
-    <ClCompile Include="D3D11GeometryEffect.cpp" />
-    <ClCompile Include="D3D11Renderer.cpp" />
-    <ClCompile Include="D3D11VertexTypes.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Matrix2.cpp" />
-    <ClCompile Include="Matrix4x4.cpp" />
-    <ClCompile Include="Point2d.cpp" />
-    <ClCompile Include="QuadTree.cpp" />
-    <ClCompile Include="Rectangle.cpp" />
-    <ClCompile Include="SpriteBatch.cpp" />
-    <ClCompile Include="SpriteSheetAnimator.cpp" />
-    <ClCompile Include="Vector2.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Shaders\Basic.hlsl" />
-    <None Include="Resources\Shaders\CompileShaders.cmd" />
+    <ClCompile Include="Engine-test.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Logging-test.cpp" />
+    <ClCompile Include="SoundBuffer-test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

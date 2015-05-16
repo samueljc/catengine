@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{03b8228c-685e-418b-9796-c35c157ed678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{562e17a8-0729-4f6b-b42e-c50246126640}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Types.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundBuffer.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Logging.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Definitions.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Logging-test.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine-test.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundBuffer-test.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,12 +1,15 @@
 #ifndef LOGGING_HPP
 #define LOGGING_HPP
 
-#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <chrono>
 #include <string.h>
+
+#ifdef ERROR
+#undef ERROR
+#endif
 
 #define SIMPLE
 
